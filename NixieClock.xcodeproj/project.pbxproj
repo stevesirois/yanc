@@ -1,0 +1,426 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		43AFC0E91B13E50A002D3E33 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AFC0E81B13E50A002D3E33 /* AppDelegate.swift */; };
+		43AFC0EB1B13E50A002D3E33 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AFC0EA1B13E50A002D3E33 /* ViewController.swift */; };
+		43AFC0EE1B13E50A002D3E33 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43AFC0EC1B13E50A002D3E33 /* Main.storyboard */; };
+		43AFC0F01B13E50A002D3E33 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43AFC0EF1B13E50A002D3E33 /* Images.xcassets */; };
+		43AFC0F31B13E50A002D3E33 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 43AFC0F11B13E50A002D3E33 /* LaunchScreen.xib */; };
+		43AFC0FF1B13E50A002D3E33 /* NixieClockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AFC0FE1B13E50A002D3E33 /* NixieClockTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		43AFC0F91B13E50A002D3E33 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43AFC0DB1B13E50A002D3E33 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43AFC0E21B13E50A002D3E33;
+			remoteInfo = NixieClock;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		43AFC0E31B13E50A002D3E33 /* NixieClock.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NixieClock.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		43AFC0E71B13E50A002D3E33 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		43AFC0E81B13E50A002D3E33 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		43AFC0EA1B13E50A002D3E33 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		43AFC0ED1B13E50A002D3E33 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		43AFC0EF1B13E50A002D3E33 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		43AFC0F21B13E50A002D3E33 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		43AFC0F81B13E50A002D3E33 /* NixieClockTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NixieClockTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		43AFC0FD1B13E50A002D3E33 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		43AFC0FE1B13E50A002D3E33 /* NixieClockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NixieClockTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		43AFC0E01B13E50A002D3E33 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43AFC0F51B13E50A002D3E33 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		43AFC0DA1B13E50A002D3E33 = {
+			isa = PBXGroup;
+			children = (
+				43AFC0E51B13E50A002D3E33 /* NixieClock */,
+				43AFC0FB1B13E50A002D3E33 /* NixieClockTests */,
+				43AFC0E41B13E50A002D3E33 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		43AFC0E41B13E50A002D3E33 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				43AFC0E31B13E50A002D3E33 /* NixieClock.app */,
+				43AFC0F81B13E50A002D3E33 /* NixieClockTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		43AFC0E51B13E50A002D3E33 /* NixieClock */ = {
+			isa = PBXGroup;
+			children = (
+				43AFC0E81B13E50A002D3E33 /* AppDelegate.swift */,
+				43AFC0EA1B13E50A002D3E33 /* ViewController.swift */,
+				43AFC0EC1B13E50A002D3E33 /* Main.storyboard */,
+				43AFC0EF1B13E50A002D3E33 /* Images.xcassets */,
+				43AFC0F11B13E50A002D3E33 /* LaunchScreen.xib */,
+				43AFC0E61B13E50A002D3E33 /* Supporting Files */,
+			);
+			path = NixieClock;
+			sourceTree = "<group>";
+		};
+		43AFC0E61B13E50A002D3E33 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				43AFC0E71B13E50A002D3E33 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		43AFC0FB1B13E50A002D3E33 /* NixieClockTests */ = {
+			isa = PBXGroup;
+			children = (
+				43AFC0FE1B13E50A002D3E33 /* NixieClockTests.swift */,
+				43AFC0FC1B13E50A002D3E33 /* Supporting Files */,
+			);
+			path = NixieClockTests;
+			sourceTree = "<group>";
+		};
+		43AFC0FC1B13E50A002D3E33 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				43AFC0FD1B13E50A002D3E33 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		43AFC0E21B13E50A002D3E33 /* NixieClock */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 43AFC1021B13E50A002D3E33 /* Build configuration list for PBXNativeTarget "NixieClock" */;
+			buildPhases = (
+				43AFC0DF1B13E50A002D3E33 /* Sources */,
+				43AFC0E01B13E50A002D3E33 /* Frameworks */,
+				43AFC0E11B13E50A002D3E33 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NixieClock;
+			productName = NixieClock;
+			productReference = 43AFC0E31B13E50A002D3E33 /* NixieClock.app */;
+			productType = "com.apple.product-type.application";
+		};
+		43AFC0F71B13E50A002D3E33 /* NixieClockTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 43AFC1051B13E50A002D3E33 /* Build configuration list for PBXNativeTarget "NixieClockTests" */;
+			buildPhases = (
+				43AFC0F41B13E50A002D3E33 /* Sources */,
+				43AFC0F51B13E50A002D3E33 /* Frameworks */,
+				43AFC0F61B13E50A002D3E33 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				43AFC0FA1B13E50A002D3E33 /* PBXTargetDependency */,
+			);
+			name = NixieClockTests;
+			productName = NixieClockTests;
+			productReference = 43AFC0F81B13E50A002D3E33 /* NixieClockTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		43AFC0DB1B13E50A002D3E33 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0630;
+				ORGANIZATIONNAME = "Gestion MBTI";
+				TargetAttributes = {
+					43AFC0E21B13E50A002D3E33 = {
+						CreatedOnToolsVersion = 6.3.1;
+					};
+					43AFC0F71B13E50A002D3E33 = {
+						CreatedOnToolsVersion = 6.3.1;
+						TestTargetID = 43AFC0E21B13E50A002D3E33;
+					};
+				};
+			};
+			buildConfigurationList = 43AFC0DE1B13E50A002D3E33 /* Build configuration list for PBXProject "NixieClock" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 43AFC0DA1B13E50A002D3E33;
+			productRefGroup = 43AFC0E41B13E50A002D3E33 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				43AFC0E21B13E50A002D3E33 /* NixieClock */,
+				43AFC0F71B13E50A002D3E33 /* NixieClockTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		43AFC0E11B13E50A002D3E33 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43AFC0EE1B13E50A002D3E33 /* Main.storyboard in Resources */,
+				43AFC0F31B13E50A002D3E33 /* LaunchScreen.xib in Resources */,
+				43AFC0F01B13E50A002D3E33 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43AFC0F61B13E50A002D3E33 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		43AFC0DF1B13E50A002D3E33 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43AFC0EB1B13E50A002D3E33 /* ViewController.swift in Sources */,
+				43AFC0E91B13E50A002D3E33 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43AFC0F41B13E50A002D3E33 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43AFC0FF1B13E50A002D3E33 /* NixieClockTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		43AFC0FA1B13E50A002D3E33 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43AFC0E21B13E50A002D3E33 /* NixieClock */;
+			targetProxy = 43AFC0F91B13E50A002D3E33 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		43AFC0EC1B13E50A002D3E33 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				43AFC0ED1B13E50A002D3E33 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		43AFC0F11B13E50A002D3E33 /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				43AFC0F21B13E50A002D3E33 /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		43AFC1001B13E50A002D3E33 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		43AFC1011B13E50A002D3E33 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		43AFC1031B13E50A002D3E33 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = NixieClock/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		43AFC1041B13E50A002D3E33 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = NixieClock/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		43AFC1061B13E50A002D3E33 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = NixieClockTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NixieClock.app/NixieClock";
+			};
+			name = Debug;
+		};
+		43AFC1071B13E50A002D3E33 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = NixieClockTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NixieClock.app/NixieClock";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		43AFC0DE1B13E50A002D3E33 /* Build configuration list for PBXProject "NixieClock" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43AFC1001B13E50A002D3E33 /* Debug */,
+				43AFC1011B13E50A002D3E33 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		43AFC1021B13E50A002D3E33 /* Build configuration list for PBXNativeTarget "NixieClock" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43AFC1031B13E50A002D3E33 /* Debug */,
+				43AFC1041B13E50A002D3E33 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		43AFC1051B13E50A002D3E33 /* Build configuration list for PBXNativeTarget "NixieClockTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43AFC1061B13E50A002D3E33 /* Debug */,
+				43AFC1071B13E50A002D3E33 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 43AFC0DB1B13E50A002D3E33 /* Project object */;
+}
