@@ -10,7 +10,7 @@ The project is two parts:
 Physical part - Nixie Clock
 
 - 4 nixie tubes (IN-14) display
-- Raspberry PI Model A+ for main controller
+- Raspberry PI Model A+ (256MB) for main controller
 - Custom nixie driver circuit and audio ouput (PCB)
 
 Software part - Clock control and remote app
@@ -18,6 +18,5 @@ Software part - Clock control and remote app
 - Python server app for clock hardware control
 - REST Server to interact with external world (no button!)
 - IOS App to "talk" to the clock
-
 
 Stay put, more details comming...
