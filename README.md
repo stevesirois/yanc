@@ -15,7 +15,7 @@ Physical part - Nixie Clock
 
 Software part - Clock control and remote app
 
-- Python server app for clock hardware control (Python)
+- Controler daemon for clock hardware control (Python)
 - REST Server to interact with external world (look mom, no button!)
 - IOS App to "talk" to the clock (Swift)
 
