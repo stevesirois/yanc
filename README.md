@@ -19,4 +19,6 @@ Software part - Clock control and remote app
 - REST Server to interact with external world (no button!)
 - IOS App to "talk" to the clock
 
-Stay put, more details coming...
+Simply put, this clock will look great, will sync itself on the net and get it's alarms from my Google Calendar! :-)
+
+More details coming...
