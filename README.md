@@ -15,9 +15,9 @@ Physical part - Nixie Clock
 
 Software part - Clock control and remote app
 
-- Python server app for clock hardware control
-- REST Server to interact with external world (no button!)
-- IOS App to "talk" to the clock
+- Python server app for clock hardware control (Python)
+- REST Server to interact with external world (look mom, no button!)
+- IOS App to "talk" to the clock (Swift)
 
 Simply put, this clock will look great, will sync itself on the net and get it's alarms from my Google Calendar! :-)
 
