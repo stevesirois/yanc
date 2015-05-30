@@ -12,8 +12,8 @@ Physical part - Nixie Clock
 - 4 nixie tubes (IN-14) display
 - Raspberry PI Model A+ (256MB) for main controller
 - Custom nixie driver circuit and audio ouput (PCB)
-- MP3 Playback in alarm
-- Sound activated display (extented life of tube)
+- MP3 Playback for alarm
+- Sound activated display (extented life of tubes)
 
 Software part - Clock control and remote app
 
