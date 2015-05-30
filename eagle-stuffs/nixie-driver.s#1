@@ -22032,7 +22032,6 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <text x="175.26" y="25.4" size="2.54" layer="98" font="fixed">Project:</text>
 <text x="193.04" y="25.4" size="2.54" layer="98" font="fixed">Y.A.N.C. (Yet Another Nixie Clock)</text>
 <text x="83.82" y="200.66" size="1.778" layer="98">Capacitor value in uF in not noted</text>
-<text x="175.26" y="7.62" size="2.54" layer="98" font="fixed">Licensed under CERN OHL v.1.2 or later</text>
 </plain>
 <instances>
 <instance part="Q5" gate="G$1" x="124.46" y="22.86" smashed="yes" rot="MR0">
