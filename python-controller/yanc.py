@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # *********************************************************************
 # Y.A.N.C. - Yet Another Nixie Clock
 #
@@ -22,18 +23,48 @@
 
 import spidev
 import RPi.GPIO as GPIO
+import web
+import time
 from multiprocessing import Process, Queue
 
-# Setup IO
+# Setup IO (PP = Physical Pin)
+out_SRCLR = 26 # PP 37 - SCL (SRCLR) pin on 74LS595 - 0 = clear, 1 = enable
+out_led = 12 # PP 32 - Ambient led driver - will be PWM driven
+
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(26, GPIO.OUT) # PP 37 - SCL (SRCLR) pin on 74LS595 - 0 = clear, 1 = enable
-GPIO.setup(12, GPIO.OUT) # PP 32 - Ambient led driver - will be PWM driven
+
+GPIO.setup(out_SRCLR, GPIO.OUT) 
+GPIO.setup(out_led, GPIO.OUT)
+
+GPIO.setup(5, GPIO.OUT) # PP 29
+GPIO.setup(6, GPIO.OUT) # PP 31
+GPIO.setup(13, GPIO.OUT) # PP 33
+
+GPIO.setup(17, GPIO.OUT) # PP 11
+GPIO.setup(22, GPIO.OUT) # PP 15
+
+GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP) # PP 16
+GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP) # PP 18
+
+
+GPIO.setup(25, GPIO.IN) # PP 22
+
+def my_callback(channel):
+	print "falling edge detected on 23"
+
+def my_callback2(channel):
+	print "falling edge detected on 24"
+
+GPIO.add_event_detect(23, GPIO.FALLING, callback=my_callback, bouncetime=300)  
+GPIO.add_event_detect(24, GPIO.FALLING, callback=my_callback2, bouncetime=300)  
+
+#GPIO.wait_for_edge(24, GPIO.RISING)
 
 # 
-p = GPIO.PWM(12, 100) # ,100 = 100 Hz
-p.start(50) # DutyCycle 50%
-p.ChangeDutyCycle(90)
-p.stop() 
+#p = GPIO.PWM(12, 100) # ,100 = 100 Hz
+#p.start(50) # DutyCycle 50%
+#p.ChangeDutyCycle(90)
+#p.stop() 
 
 #GPIO.cleanup()
 
@@ -57,12 +88,10 @@ def ShowOnNixie(q):
 
 # Main Loop
 if __name__ == ‘__main__’:
-	# Setup process for display and playback
+	# Setup process for display, playback and interrupt input
 	q = Queue()
 	p = Process(target=ShowOnNixie, args=(q,))
 	p.start()
 
 
 	#p.join()
-
-
