@@ -1,4 +1,4 @@
-# yanc
+# YANC
 Y.A.N.C. - Yet Another Nixie Clock
 
 This project is the software part of a larger project that include nixie tube clock with no physical controls but only "web" access.
