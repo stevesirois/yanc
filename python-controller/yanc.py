@@ -27,19 +27,19 @@ import web
 import time
 from multiprocessing import Process, Queue
 
-# Setup IO (PP = Physical Pin)
+# Setup IO (PP = Physical Pin, (l) = Denote an active state on low)
 # Nixie Board
-out_SRCLR = 26 # PP 37 - SCL (SRCLR) pin on 74LS595 - 0 = clear, 1 = enable
+out_SRCLR = 26 # PP 37 - SCL [SRCLR] (l) pin on 74LS595 - 0 = clear, 1 = enable
 out_led = 12 # PP 32 - Ambient led driver - will be PWM driven
 
 # Digital potentiometer
-out_up-down = 5 # PP 29 - U/D on DS1804
-out_inc = 6 # PP 31 - INC on DS1804
-out_cs_audio = 13 # PP 33 - CS on DS1804 for audio level playback
-out_cs_micro = 17 # PP 11 - CS on DS1804 for microphone sensitivity
+out_up-down = 5 # PP 29 - U/D(l) on DS1804
+out_inc = 6 # PP 31 - INC(h) on DS1804
+out_cs_audio = 13 # PP 33 - CS(l) on DS1804 for audio level playback
+out_cs_micro = 17 # PP 11 - CS(l) on DS1804 for microphone sensitivity
 
-in_noise_detect = 23  # PP 16 - Ouput of OpAmp
-in_touch_detect = 24 # PP 18 - Atmel AT42QT1011
+in_noise_detect = 23  # PP 16 - Output of OpAmp TL084
+in_touch_detect = 24 # PP 18 - Atmel AT42QT1011 QTouch Capacitive 
 
 GPIO.setmode(GPIO.BCM)
 
