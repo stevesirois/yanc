@@ -5,6 +5,7 @@
 # Ignore the board and schematic backup files
 *.b#?
 *.s#?
+*.pro
 
 # Mac crap
 .DS_Store
