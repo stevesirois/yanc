@@ -28,26 +28,35 @@ import time
 from multiprocessing import Process, Queue
 
 # Setup IO (PP = Physical Pin)
+# Nixie Board
 out_SRCLR = 26 # PP 37 - SCL (SRCLR) pin on 74LS595 - 0 = clear, 1 = enable
 out_led = 12 # PP 32 - Ambient led driver - will be PWM driven
+
+# Digital potentiometer
+out_up-down = 5 # PP 29 - U/D on DS1804
+out_inc = 6 # PP 31 - INC on DS1804
+out_cs_audio = 13 # PP 33 - CS on DS1804 for audio level playback
+out_cs_micro = 17 # PP 11 - CS on DS1804 for microphone sensitivity
+
+in_noise_detect = 23  # PP 16 - Ouput of OpAmp
+in_touch_detect = 24 # PP 18 - Atmel AT42QT1011
 
 GPIO.setmode(GPIO.BCM)
 
 GPIO.setup(out_SRCLR, GPIO.OUT) 
 GPIO.setup(out_led, GPIO.OUT)
 
-GPIO.setup(5, GPIO.OUT) # PP 29
-GPIO.setup(6, GPIO.OUT) # PP 31
-GPIO.setup(13, GPIO.OUT) # PP 33
+GPIO.setup(out_up-down, GPIO.OUT) 
+GPIO.setup(out_inc, GPIO.OUT) 
+GPIO.setup(out_cs_audio, GPIO.OUT) 
+GPIO.setup(out_cs_micro, GPIO.OUT)
 
-GPIO.setup(17, GPIO.OUT) # PP 11
-GPIO.setup(22, GPIO.OUT) # PP 15
+GPIO.setup(in_noise_detect, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(in_touch_detect, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
 
-GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP) # PP 16
-GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP) # PP 18
-
-
-GPIO.setup(25, GPIO.IN) # PP 22
+# Spare pins
+#GPIO.setup(22, GPIO.OUT) # PP 15
+#GPIO.setup(25, GPIO.IN) # PP 22
 
 def my_callback(channel):
 	print "falling edge detected on 23"
