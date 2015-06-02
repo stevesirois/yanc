@@ -14268,7 +14268,7 @@ With round pins</description>
 <part name="IC3" library="pot-xicor" deviceset="X9C102*" device="P" value="DS1804-10k"/>
 <part name="IC4" library="pot-xicor" deviceset="X9C102*" device="P" value="DS1804"/>
 <part name="R2" library="resistor" deviceset="R-US_" device="0207/10" value="8k"/>
-<part name="R10" library="resistor" deviceset="R-US_" device="0207/10" value="10K"/>
+<part name="R10" library="resistor" deviceset="R-US_" device="0207/10" value="1k"/>
 <part name="R9" library="resistor" deviceset="R-US_" device="0207/10" value="100K"/>
 <part name="R5" library="resistor" deviceset="R-US_" device="0207/10" value="10K"/>
 <part name="R4" library="resistor" deviceset="R-US_" device="0207/10" value="15K"/>
@@ -14280,7 +14280,7 @@ With round pins</description>
 <part name="IN" library="pinhead" deviceset="PINHD-1X2" device=""/>
 <part name="C1" library="rcl" deviceset="CPOL-EU" device="E2-5" value="250u"/>
 <part name="C3" library="rcl" deviceset="C-US" device="025-025X050" value="2.2"/>
-<part name="C4" library="rcl" deviceset="C-US" device="025-025X050" value="0.1"/>
+<part name="C4" library="rcl" deviceset="C-US" device="025-025X050" value="1"/>
 <part name="SUPPLY4" library="supply2" deviceset="+5V" device=""/>
 <part name="SUPPLY5" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY7" library="supply2" deviceset="+5V" device=""/>
@@ -14291,7 +14291,7 @@ With round pins</description>
 <part name="C2" library="rcl" deviceset="C-US" device="025-025X050" value="2.2"/>
 <part name="U1" library="SparkFun-DigitalIC" deviceset="AT42QT1010" device="SOT23"/>
 <part name="R1" library="resistor" deviceset="R-US_" device="0207/10" value="10k"/>
-<part name="C7" library="rcl" deviceset="C-US" device="025-025X050" value="10nF"/>
+<part name="C7" library="rcl" deviceset="C-US" device="025-025X050" value="0.01"/>
 <part name="R8" library="resistor" deviceset="R-US_" device="0207/10" value="100K"/>
 <part name="C5" library="rcl" deviceset="C-US" device="025-025X050" value="1"/>
 <part name="R6" library="resistor" deviceset="R-US_" device="0207/10" value="33K"/>
@@ -14305,6 +14305,7 @@ With round pins</description>
 <part name="SUPPLY9" library="supply2" deviceset="+5V" device=""/>
 <part name="SUPPLY14" library="supply2" deviceset="GND" device=""/>
 <part name="TOUCH" library="adafruit" deviceset="PINHD-1X1" device=""/>
+<part name="C8" library="rcl" deviceset="C-US" device="025-025X050" value="0.1"/>
 </parts>
 <sheets>
 <sheet>
@@ -14372,6 +14373,7 @@ With round pins</description>
 </instance>
 <instance part="SUPPLY14" gate="GND" x="170.18" y="157.48"/>
 <instance part="TOUCH" gate="G$1" x="259.08" y="73.66" rot="R180"/>
+<instance part="C8" gate="G$1" x="167.64" y="68.58"/>
 </instances>
 <busses>
 </busses>
@@ -14437,8 +14439,13 @@ With round pins</description>
 </segment>
 <segment>
 <pinref part="U1" gate="G$1" pin="VSS"/>
-<wire x1="177.8" y1="63.5" x2="177.8" y2="48.26" width="0.1524" layer="91"/>
+<wire x1="177.8" y1="63.5" x2="177.8" y2="55.88" width="0.1524" layer="91"/>
 <pinref part="SUPPLY13" gate="GND" pin="GND"/>
+<pinref part="C8" gate="G$1" pin="2"/>
+<wire x1="177.8" y1="55.88" x2="177.8" y2="48.26" width="0.1524" layer="91"/>
+<wire x1="177.8" y1="55.88" x2="167.64" y2="55.88" width="0.1524" layer="91"/>
+<wire x1="167.64" y1="55.88" x2="167.64" y2="63.5" width="0.1524" layer="91"/>
+<junction x="177.8" y="55.88"/>
 </segment>
 <segment>
 <pinref part="IC3" gate="1" pin="GND"/>
@@ -14488,6 +14495,9 @@ With round pins</description>
 <wire x1="218.44" y1="63.5" x2="218.44" y2="86.36" width="0.1524" layer="91"/>
 <wire x1="218.44" y1="86.36" x2="195.58" y2="86.36" width="0.1524" layer="91"/>
 <junction x="195.58" y="86.36"/>
+<pinref part="C8" gate="G$1" pin="1"/>
+<wire x1="195.58" y1="86.36" x2="167.64" y2="86.36" width="0.1524" layer="91"/>
+<wire x1="167.64" y1="86.36" x2="167.64" y2="71.12" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="SUPPLY4" gate="+5V" pin="+5V"/>
@@ -14606,10 +14616,6 @@ With round pins</description>
 <wire x1="78.74" y1="83.82" x2="71.12" y2="83.82" width="0.1524" layer="91"/>
 <wire x1="71.12" y1="83.82" x2="71.12" y2="48.26" width="0.1524" layer="91"/>
 <junction x="71.12" y="48.26"/>
-<pinref part="IC4" gate="1" pin="H"/>
-<wire x1="78.74" y1="88.9" x2="71.12" y2="88.9" width="0.1524" layer="91"/>
-<wire x1="71.12" y1="88.9" x2="71.12" y2="83.82" width="0.1524" layer="91"/>
-<junction x="71.12" y="83.82"/>
 </segment>
 </net>
 <net name="N$15" class="0">
@@ -14746,12 +14752,7 @@ With round pins</description>
 <segment>
 <pinref part="IC3" gate="1" pin="W"/>
 <pinref part="R2" gate="G$1" pin="1"/>
-<wire x1="137.16" y1="172.72" x2="134.62" y2="172.72" width="0.1524" layer="91"/>
-<pinref part="IC3" gate="1" pin="L"/>
-<wire x1="134.62" y1="172.72" x2="132.08" y2="172.72" width="0.1524" layer="91"/>
-<wire x1="137.16" y1="167.64" x2="134.62" y2="167.64" width="0.1524" layer="91"/>
-<wire x1="134.62" y1="167.64" x2="134.62" y2="172.72" width="0.1524" layer="91"/>
-<junction x="134.62" y="172.72"/>
+<wire x1="137.16" y1="172.72" x2="132.08" y2="172.72" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$18" class="0">
