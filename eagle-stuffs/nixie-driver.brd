@@ -3448,7 +3448,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="49.022" y="9.779" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="48.5394" y="9.525" size="1.27" layer="27" ratio="10"/>
 </element>
-<element name="R11" library="resistor" package="0207/10" value="27" x="87.63" y="34.29" smashed="yes" rot="R90">
+<element name="R11" library="resistor" package="0207/10" value="56" x="87.63" y="34.29" smashed="yes" rot="R90">
 <attribute name="NAME" x="88.011" y="32.512" size="1.27" layer="25" ratio="10" rot="R90"/>
 <attribute name="VALUE" x="88.265" y="32.0294" size="1.27" layer="27" ratio="10" rot="R90"/>
 </element>
