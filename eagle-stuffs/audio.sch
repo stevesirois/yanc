@@ -14222,9 +14222,8 @@ at 31/07/2012 09:37:13</description>
 <parts>
 <part name="FRAME1" library="frames" deviceset="FRAME_A_L" device=""/>
 <part name="IC2" library="linear" deviceset="TL084" device="P"/>
-<part name="IC3" library="pot-xicor" deviceset="X9C102*" device="P" value="DS1804-10k"/>
-<part name="IC4" library="pot-xicor" deviceset="X9C102*" device="P" value="DS1804"/>
-<part name="R2" library="resistor" deviceset="R-US_" device="0207/10" value="8k"/>
+<part name="IC3" library="pot-xicor" deviceset="X9C102*" device="P" value="DS1804-50k"/>
+<part name="IC4" library="pot-xicor" deviceset="X9C102*" device="P" value="DS1804-100k"/>
 <part name="R10" library="resistor" deviceset="R-US_" device="0207/10" value="1k"/>
 <part name="R9" library="resistor" deviceset="R-US_" device="0207/10" value="100k"/>
 <part name="R5" library="resistor" deviceset="R-US_" device="0207/10" value="10k"/>
@@ -14251,7 +14250,7 @@ at 31/07/2012 09:37:13</description>
 <part name="R6" library="resistor" deviceset="R-US_" device="0207/10" value="33k"/>
 <part name="C6" library="rcl" deviceset="C-US" device="025-025X050" value="2.2nF"/>
 <part name="U2" library="Analog Devices_By_element14_Batch_1" deviceset="SSM2211SZ" device=""/>
-<part name="R3" library="resistor" deviceset="R-US_" device="0207/10" value="10k"/>
+<part name="R3" library="resistor" deviceset="R-US_" device="0207/10" value="20k"/>
 <part name="SUPPLY3" library="supply2" deviceset="VCC" device="" value="Enabled"/>
 <part name="SUPPLY6" library="supply2" deviceset="VCC" device="" value="Enabled"/>
 <part name="SUPPLY9" library="supply2" deviceset="+5V" device=""/>
@@ -14277,7 +14276,6 @@ at 31/07/2012 09:37:13</description>
 <instance part="IC2" gate="B" x="142.24" y="48.26"/>
 <instance part="IC3" gate="1" x="149.86" y="172.72" rot="MR0"/>
 <instance part="IC4" gate="1" x="91.44" y="83.82" rot="MR0"/>
-<instance part="R2" gate="G$1" x="127" y="172.72" rot="R180"/>
 <instance part="R10" gate="G$1" x="33.02" y="60.96" rot="R90"/>
 <instance part="R9" gate="G$1" x="58.42" y="38.1" rot="R90"/>
 <instance part="R5" gate="G$1" x="127" y="60.96" rot="R90"/>
@@ -14605,9 +14603,11 @@ at 31/07/2012 09:37:13</description>
 <wire x1="68.58" y1="162.56" x2="68.58" y2="144.78" width="0.1524" layer="91"/>
 <wire x1="68.58" y1="144.78" x2="116.84" y2="144.78" width="0.1524" layer="91"/>
 <wire x1="116.84" y1="144.78" x2="116.84" y2="172.72" width="0.1524" layer="91"/>
-<pinref part="R2" gate="G$1" pin="2"/>
-<wire x1="116.84" y1="172.72" x2="121.92" y2="172.72" width="0.1524" layer="91"/>
 <junction x="68.58" y="162.56"/>
+<pinref part="IC3" gate="1" pin="W"/>
+<wire x1="137.16" y1="172.72" x2="134.62" y2="172.72" width="0.1524" layer="91"/>
+<wire x1="134.62" y1="172.72" x2="132.08" y2="172.72" width="0.1524" layer="91"/>
+<wire x1="116.84" y1="172.72" x2="132.08" y2="172.72" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$5" class="0">
@@ -14653,13 +14653,6 @@ at 31/07/2012 09:37:13</description>
 <wire x1="114.3" y1="198.12" x2="114.3" y2="175.26" width="0.1524" layer="91"/>
 <pinref part="U2" gate="A" pin="VOUTB"/>
 <wire x1="114.3" y1="175.26" x2="106.68" y2="175.26" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$7" class="0">
-<segment>
-<pinref part="IC3" gate="1" pin="W"/>
-<pinref part="R2" gate="G$1" pin="1"/>
-<wire x1="137.16" y1="172.72" x2="132.08" y2="172.72" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$18" class="0">
