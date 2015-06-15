@@ -1,3 +1,10 @@
+#########
+# Private stuff
+#########
+private_info.json
+*.p12
+*.pem
+
 #############
 ## Eagle
 #############
