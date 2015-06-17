@@ -21973,7 +21973,6 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <part name="R20" library="resistor" deviceset="R-US_" device="0207/10" value="10k"/>
 <part name="R22" library="resistor" deviceset="R-US_" device="0207/10" value="220k"/>
 <part name="R23" library="resistor" deviceset="R-US_" device="0207/10" value="330"/>
-<part name="R24" library="pot" deviceset="TRIM_EU-" device="CT6" value="2K"/>
 <part name="D2" library="diode" deviceset="1N4004" device="" value="1N914"/>
 <part name="Q9" library="transistor-pnp" deviceset="2N4126*" device="" value="PN2907"/>
 <part name="R25" library="resistor" deviceset="R-US_" device="0207/10" value="1k"/>
@@ -21982,7 +21981,6 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <part name="L1" library="inductors" deviceset="MMICC7" device="" value="100uH/1A"/>
 <part name="IC3" library="texas" deviceset="TPS6107*" device="DDC" technology="0" value="TPS562209"/>
 <part name="R21" library="resistor" deviceset="R-US_" device="0207/10" value="2.2k"/>
-<part name="L2" library="resistor" deviceset="L-US" device="0207/10" value="4.7uH/1.7A"/>
 <part name="P+1" library="supply1" deviceset="+24V" device="" value="+170V"/>
 <part name="C1" library="rcl" deviceset="CPOL-US" device="E2,5-6E" value="100"/>
 <part name="C2" library="rcl" deviceset="C-US" device="050-024X044" value="0.1"/>
@@ -22002,6 +22000,8 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <part name="R28" library="resistor" deviceset="R-US_" device="0204/2V" value="59.4k"/>
 <part name="R29" library="resistor" deviceset="R-US_" device="0204/2V" value="10k"/>
 <part name="C6" library="rcl" deviceset="C-US" device="050-024X044" value="0.1"/>
+<part name="R24" library="pot" deviceset="TRIM_EU-" device="CA6V" value="2k"/>
+<part name="L2" library="resistor" deviceset="L-US" device="0207/12" value="4.7uH/1.7A"/>
 </parts>
 <sheets>
 <sheet>
@@ -22017,7 +22017,7 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <wire x1="144.78" y1="137.16" x2="144.78" y2="99.06" width="0.1524" layer="98" style="shortdash"/>
 <wire x1="144.78" y1="99.06" x2="7.62" y2="99.06" width="0.1524" layer="98" style="shortdash"/>
 <wire x1="7.62" y1="99.06" x2="7.62" y2="203.2" width="0.1524" layer="98" style="shortdash"/>
-<text x="27.94" y="205.74" size="1.778" layer="98">Power supply (+5v / 500mA, +170v / 6 mA)</text>
+<text x="38.1" y="208.28" size="1.778" layer="98">Power supply (+5v / 500mA, +170v / 6 mA)</text>
 <text x="223.52" y="45.72" size="1.778" layer="98">Cathode drivers &amp; Ambient led</text>
 <wire x1="147.32" y1="134.62" x2="269.24" y2="134.62" width="0.1524" layer="98" style="shortdash"/>
 <wire x1="269.24" y1="134.62" x2="269.24" y2="48.26" width="0.1524" layer="98" style="shortdash"/>
@@ -22031,7 +22031,7 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <text x="266.7" y="7.62" size="2.54" layer="98" font="fixed">A</text>
 <text x="175.26" y="25.4" size="2.54" layer="98" font="fixed">Project:</text>
 <text x="193.04" y="25.4" size="2.54" layer="98" font="fixed">Y.A.N.C. (Yet Another Nixie Clock)</text>
-<text x="83.82" y="200.66" size="1.778" layer="98">Capacitor value in uF in not noted</text>
+<text x="38.1" y="205.74" size="1.778" layer="98">Capacitor value in uF in not noted, C4/C5 300v rated</text>
 <text x="175.26" y="7.62" size="2.54" layer="98" font="fixed">Licensed under CERN OHL v.1.2 or later</text>
 </plain>
 <instances>
@@ -22186,10 +22186,6 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <attribute name="NAME" x="123.4186" y="118.11" size="1.778" layer="95" rot="R270"/>
 <attribute name="VALUE" x="118.618" y="118.11" size="1.778" layer="96" rot="R270"/>
 </instance>
-<instance part="R24" gate="1" x="121.92" y="129.54" smashed="yes" rot="MR0">
-<attribute name="NAME" x="127.889" y="125.73" size="1.778" layer="95" rot="MR90"/>
-<attribute name="VALUE" x="125.73" y="125.73" size="1.778" layer="96" rot="MR90"/>
-</instance>
 <instance part="D2" gate="1" x="99.06" y="137.16" smashed="yes">
 <attribute name="NAME" x="101.6" y="135.1026" size="1.778" layer="95"/>
 <attribute name="VALUE" x="96.52" y="139.9286" size="1.778" layer="96"/>
@@ -22221,10 +22217,6 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <instance part="R21" gate="G$1" x="55.88" y="190.5" smashed="yes" rot="R270">
 <attribute name="NAME" x="57.3786" y="194.31" size="1.778" layer="95" rot="R270"/>
 <attribute name="VALUE" x="52.578" y="194.31" size="1.778" layer="96" rot="R270"/>
-</instance>
-<instance part="L2" gate="G$1" x="139.7" y="185.42" smashed="yes">
-<attribute name="NAME" x="138.43" y="180.34" size="1.778" layer="95" rot="R90"/>
-<attribute name="VALUE" x="143.51" y="180.34" size="1.778" layer="96" rot="R90"/>
 </instance>
 <instance part="P+1" gate="1" x="162.56" y="205.74" smashed="yes">
 <attribute name="VALUE" x="167.64" y="210.82" size="1.778" layer="96" rot="R180"/>
@@ -22262,6 +22254,8 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <instance part="R28" gate="G$1" x="149.86" y="190.5" rot="R90"/>
 <instance part="R29" gate="G$1" x="149.86" y="175.26" rot="R90"/>
 <instance part="C6" gate="G$1" x="88.9" y="172.72"/>
+<instance part="R24" gate="1" x="121.92" y="129.54" rot="R180"/>
+<instance part="L2" gate="G$1" x="139.7" y="185.42"/>
 </instances>
 <busses>
 </busses>
@@ -22474,12 +22468,12 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <wire x1="139.7" y1="200.66" x2="149.86" y2="200.66" width="0.1524" layer="91"/>
 <wire x1="149.86" y1="200.66" x2="149.86" y2="195.58" width="0.1524" layer="91"/>
 <junction x="139.7" y="200.66"/>
-<pinref part="L2" gate="G$1" pin="1"/>
 <wire x1="149.86" y1="200.66" x2="157.48" y2="200.66" width="0.1524" layer="91"/>
 <wire x1="157.48" y1="200.66" x2="157.48" y2="185.42" width="0.1524" layer="91"/>
 <junction x="149.86" y="200.66"/>
 <pinref part="C8" gate="G$1" pin="1"/>
 <pinref part="R28" gate="G$1" pin="2"/>
+<pinref part="L2" gate="G$1" pin="1"/>
 </segment>
 <segment>
 <pinref part="IC2" gate="P" pin="VCC"/>
@@ -23006,24 +23000,24 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <segment>
 <wire x1="73.66" y1="114.3" x2="114.3" y2="114.3" width="0.1524" layer="91"/>
 <wire x1="114.3" y1="114.3" x2="114.3" y2="129.54" width="0.1524" layer="91"/>
-<pinref part="R24" gate="1" pin="S"/>
 <wire x1="114.3" y1="129.54" x2="116.84" y2="129.54" width="0.1524" layer="91"/>
 <wire x1="114.3" y1="137.16" x2="114.3" y2="129.54" width="0.1524" layer="91"/>
 <junction x="114.3" y="129.54"/>
-<pinref part="R24" gate="1" pin="E"/>
 <pinref part="R22" gate="G$1" pin="2"/>
 <wire x1="121.92" y1="134.62" x2="121.92" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="121.92" y1="137.16" x2="121.92" y2="144.78" width="0.1524" layer="91"/>
 <wire x1="114.3" y1="137.16" x2="121.92" y2="137.16" width="0.1524" layer="91"/>
 <junction x="121.92" y="137.16"/>
 <pinref part="Q10" gate="G$1" pin="B"/>
+<pinref part="R24" gate="1" pin="A"/>
+<pinref part="R24" gate="1" pin="S"/>
 </segment>
 </net>
 <net name="N$65" class="0">
 <segment>
-<pinref part="R24" gate="1" pin="A"/>
 <pinref part="R23" gate="G$1" pin="1"/>
 <wire x1="121.92" y1="119.38" x2="121.92" y2="124.46" width="0.1524" layer="91"/>
+<pinref part="R24" gate="1" pin="E"/>
 </segment>
 </net>
 <net name="N$66" class="0">
@@ -23065,13 +23059,13 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 </net>
 <net name="SW" class="0">
 <segment>
-<pinref part="L2" gate="G$1" pin="2"/>
 <pinref part="C9" gate="G$1" pin="1"/>
 <wire x1="139.7" y1="170.18" x2="139.7" y2="172.72" width="0.1524" layer="91"/>
 <pinref part="IC3" gate="G$1" pin="SW"/>
 <wire x1="139.7" y1="172.72" x2="139.7" y2="177.8" width="0.1524" layer="91"/>
 <wire x1="127" y1="172.72" x2="139.7" y2="172.72" width="0.1524" layer="91"/>
 <junction x="139.7" y="172.72"/>
+<pinref part="L2" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="VBST" class="0">
