@@ -22156,7 +22156,7 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <instance part="SUPPLY7" gate="GND" x="246.38" y="55.88"/>
 <instance part="SUPPLY8" gate="+5V" x="231.14" y="81.28"/>
 <instance part="SUPPLY9" gate="+5V" x="246.38" y="81.28"/>
-<instance part="CATHODE" gate="A" x="243.84" y="114.3"/>
+<instance part="CATHODE" gate="A" x="248.92" y="114.3" rot="MR0"/>
 <instance part="PI" gate="A" x="223.52" y="157.48" rot="R270"/>
 <instance part="SUPPLY10" gate="GND" x="264.16" y="55.88"/>
 <instance part="AUDIO/CTRL" gate="A" x="223.52" y="187.96" rot="R90"/>
@@ -22494,10 +22494,10 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <wire x1="246.38" y1="147.32" x2="246.38" y2="152.4" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="CATHODE" gate="A" pin="2"/>
-<wire x1="248.92" y1="119.38" x2="264.16" y2="119.38" width="0.1524" layer="91"/>
 <pinref part="SUPPLY14" gate="+5V" pin="+5V"/>
 <wire x1="264.16" y1="139.7" x2="264.16" y2="119.38" width="0.1524" layer="91"/>
+<pinref part="CATHODE" gate="A" pin="1"/>
+<wire x1="264.16" y1="119.38" x2="251.46" y2="119.38" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="SUPPLY16" gate="+5V" pin="+5V"/>
@@ -22730,91 +22730,6 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <wire x1="208.28" y1="104.14" x2="198.12" y2="104.14" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$2" class="0">
-<segment>
-<pinref part="IC1" gate="A" pin="1"/>
-<pinref part="CATHODE" gate="A" pin="1"/>
-<wire x1="231.14" y1="119.38" x2="241.3" y2="119.38" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$3" class="0">
-<segment>
-<pinref part="IC1" gate="A" pin="2"/>
-<pinref part="CATHODE" gate="A" pin="3"/>
-<wire x1="231.14" y1="116.84" x2="241.3" y2="116.84" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$4" class="0">
-<segment>
-<pinref part="IC1" gate="A" pin="3"/>
-<pinref part="CATHODE" gate="A" pin="5"/>
-<wire x1="231.14" y1="114.3" x2="241.3" y2="114.3" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$5" class="0">
-<segment>
-<pinref part="IC1" gate="A" pin="4"/>
-<pinref part="CATHODE" gate="A" pin="7"/>
-<wire x1="231.14" y1="111.76" x2="241.3" y2="111.76" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$6" class="0">
-<segment>
-<pinref part="IC1" gate="A" pin="5"/>
-<pinref part="CATHODE" gate="A" pin="9"/>
-<wire x1="231.14" y1="109.22" x2="241.3" y2="109.22" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$7" class="0">
-<segment>
-<pinref part="IC1" gate="A" pin="6"/>
-<pinref part="CATHODE" gate="A" pin="11"/>
-<wire x1="231.14" y1="106.68" x2="241.3" y2="106.68" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$8" class="0">
-<segment>
-<pinref part="IC1" gate="A" pin="7"/>
-<wire x1="231.14" y1="104.14" x2="236.22" y2="104.14" width="0.1524" layer="91"/>
-<wire x1="236.22" y1="104.14" x2="236.22" y2="101.6" width="0.1524" layer="91"/>
-<wire x1="236.22" y1="101.6" x2="256.54" y2="101.6" width="0.1524" layer="91"/>
-<wire x1="256.54" y1="101.6" x2="256.54" y2="106.68" width="0.1524" layer="91"/>
-<pinref part="CATHODE" gate="A" pin="12"/>
-<wire x1="256.54" y1="106.68" x2="248.92" y2="106.68" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$9" class="0">
-<segment>
-<pinref part="IC1" gate="A" pin="8"/>
-<wire x1="231.14" y1="101.6" x2="233.68" y2="101.6" width="0.1524" layer="91"/>
-<wire x1="233.68" y1="101.6" x2="233.68" y2="99.06" width="0.1524" layer="91"/>
-<wire x1="233.68" y1="99.06" x2="259.08" y2="99.06" width="0.1524" layer="91"/>
-<wire x1="259.08" y1="99.06" x2="259.08" y2="109.22" width="0.1524" layer="91"/>
-<pinref part="CATHODE" gate="A" pin="10"/>
-<wire x1="259.08" y1="109.22" x2="248.92" y2="109.22" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$10" class="0">
-<segment>
-<pinref part="IC1" gate="A" pin="9"/>
-<wire x1="231.14" y1="99.06" x2="231.14" y2="96.52" width="0.1524" layer="91"/>
-<wire x1="231.14" y1="96.52" x2="261.62" y2="96.52" width="0.1524" layer="91"/>
-<wire x1="261.62" y1="96.52" x2="261.62" y2="111.76" width="0.1524" layer="91"/>
-<pinref part="CATHODE" gate="A" pin="8"/>
-<wire x1="261.62" y1="111.76" x2="248.92" y2="111.76" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$11" class="0">
-<segment>
-<pinref part="IC1" gate="A" pin="0"/>
-<wire x1="231.14" y1="121.92" x2="236.22" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="236.22" y1="121.92" x2="236.22" y2="127" width="0.1524" layer="91"/>
-<wire x1="236.22" y1="127" x2="261.62" y2="127" width="0.1524" layer="91"/>
-<wire x1="261.62" y1="127" x2="261.62" y2="114.3" width="0.1524" layer="91"/>
-<pinref part="CATHODE" gate="A" pin="6"/>
-<wire x1="261.62" y1="114.3" x2="248.92" y2="114.3" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="N$41" class="0">
 <segment>
 <pinref part="PI" gate="A" pin="24"/>
@@ -22854,10 +22769,10 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 </net>
 <net name="N$45" class="0">
 <segment>
-<pinref part="CATHODE" gate="A" pin="4"/>
-<wire x1="248.92" y1="116.84" x2="264.16" y2="116.84" width="0.1524" layer="91"/>
 <wire x1="264.16" y1="116.84" x2="264.16" y2="91.44" width="0.1524" layer="91"/>
 <pinref part="Q12" gate="G$1" pin="C"/>
+<pinref part="CATHODE" gate="A" pin="3"/>
+<wire x1="264.16" y1="116.84" x2="251.46" y2="116.84" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$46" class="0">
@@ -23159,6 +23074,92 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <pinref part="PI" gate="A" pin="37"/>
 <wire x1="172.72" y1="172.72" x2="200.66" y2="172.72" width="0.1524" layer="91"/>
 <wire x1="200.66" y1="172.72" x2="200.66" y2="160.02" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$2" class="0">
+<segment>
+<pinref part="IC1" gate="A" pin="1"/>
+<pinref part="CATHODE" gate="A" pin="2"/>
+<wire x1="231.14" y1="119.38" x2="243.84" y2="119.38" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$3" class="0">
+<segment>
+<pinref part="IC1" gate="A" pin="2"/>
+<pinref part="CATHODE" gate="A" pin="4"/>
+<wire x1="231.14" y1="116.84" x2="243.84" y2="116.84" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$4" class="0">
+<segment>
+<pinref part="IC1" gate="A" pin="3"/>
+<pinref part="CATHODE" gate="A" pin="6"/>
+<wire x1="231.14" y1="114.3" x2="243.84" y2="114.3" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$5" class="0">
+<segment>
+<pinref part="IC1" gate="A" pin="4"/>
+<pinref part="CATHODE" gate="A" pin="8"/>
+<wire x1="231.14" y1="111.76" x2="243.84" y2="111.76" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$6" class="0">
+<segment>
+<pinref part="IC1" gate="A" pin="5"/>
+<pinref part="CATHODE" gate="A" pin="10"/>
+<wire x1="231.14" y1="109.22" x2="243.84" y2="109.22" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$7" class="0">
+<segment>
+<pinref part="IC1" gate="A" pin="6"/>
+<pinref part="CATHODE" gate="A" pin="12"/>
+<wire x1="231.14" y1="106.68" x2="243.84" y2="106.68" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$8" class="0">
+<segment>
+<pinref part="CATHODE" gate="A" pin="11"/>
+<wire x1="251.46" y1="106.68" x2="256.54" y2="106.68" width="0.1524" layer="91"/>
+<wire x1="256.54" y1="106.68" x2="256.54" y2="101.6" width="0.1524" layer="91"/>
+<wire x1="256.54" y1="101.6" x2="238.76" y2="101.6" width="0.1524" layer="91"/>
+<wire x1="238.76" y1="101.6" x2="238.76" y2="104.14" width="0.1524" layer="91"/>
+<pinref part="IC1" gate="A" pin="7"/>
+<wire x1="238.76" y1="104.14" x2="231.14" y2="104.14" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$9" class="0">
+<segment>
+<pinref part="IC1" gate="A" pin="8"/>
+<wire x1="231.14" y1="101.6" x2="236.22" y2="101.6" width="0.1524" layer="91"/>
+<wire x1="236.22" y1="101.6" x2="236.22" y2="99.06" width="0.1524" layer="91"/>
+<wire x1="236.22" y1="99.06" x2="259.08" y2="99.06" width="0.1524" layer="91"/>
+<wire x1="259.08" y1="99.06" x2="259.08" y2="109.22" width="0.1524" layer="91"/>
+<pinref part="CATHODE" gate="A" pin="9"/>
+<wire x1="259.08" y1="109.22" x2="251.46" y2="109.22" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$10" class="0">
+<segment>
+<pinref part="IC1" gate="A" pin="9"/>
+<wire x1="231.14" y1="99.06" x2="233.68" y2="99.06" width="0.1524" layer="91"/>
+<wire x1="233.68" y1="99.06" x2="233.68" y2="96.52" width="0.1524" layer="91"/>
+<wire x1="233.68" y1="96.52" x2="261.62" y2="96.52" width="0.1524" layer="91"/>
+<wire x1="261.62" y1="96.52" x2="261.62" y2="111.76" width="0.1524" layer="91"/>
+<pinref part="CATHODE" gate="A" pin="7"/>
+<wire x1="261.62" y1="111.76" x2="251.46" y2="111.76" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$11" class="0">
+<segment>
+<pinref part="CATHODE" gate="A" pin="5"/>
+<wire x1="251.46" y1="114.3" x2="261.62" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="261.62" y1="114.3" x2="261.62" y2="127" width="0.1524" layer="91"/>
+<wire x1="261.62" y1="127" x2="233.68" y2="127" width="0.1524" layer="91"/>
+<wire x1="233.68" y1="127" x2="233.68" y2="121.92" width="0.1524" layer="91"/>
+<pinref part="IC1" gate="A" pin="0"/>
+<wire x1="233.68" y1="121.92" x2="231.14" y2="121.92" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
