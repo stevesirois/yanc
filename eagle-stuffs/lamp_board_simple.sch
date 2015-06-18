@@ -2093,6 +2093,7 @@ Source: www.kingbright.com</description>
 <text x="190.5" y="33.02" size="2.54" layer="98" font="fixed">Project:</text>
 <text x="208.28" y="33.02" size="2.54" layer="98" font="fixed">Y.A.N.C. (Yet Another Nixie Clock)</text>
 <text x="190.5" y="15.24" size="2.54" layer="98" font="fixed">Licensed under CERN OHL v.1.2 or later</text>
+<text x="279.4" y="15.24" size="2.54" layer="98" font="fixed">A</text>
 </plain>
 <instances>
 <instance part="N1" gate="G$1" x="114.3" y="127" rot="MR0"/>
