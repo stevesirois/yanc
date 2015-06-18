@@ -2094,6 +2094,10 @@ Source: www.kingbright.com</description>
 <text x="208.28" y="33.02" size="2.54" layer="98" font="fixed">Y.A.N.C. (Yet Another Nixie Clock)</text>
 <text x="190.5" y="15.24" size="2.54" layer="98" font="fixed">Licensed under CERN OHL v.1.2 or later</text>
 <text x="279.4" y="15.24" size="2.54" layer="98" font="fixed">A</text>
+<text x="129.54" y="187.96" size="2.54" layer="98" font="fixed">Note that those pinhead connector are
+mounted on the bottom layer. 
+This is why the cathod connector on the
+driver board is mirror to account for this.</text>
 </plain>
 <instances>
 <instance part="N1" gate="G$1" x="114.3" y="127" rot="MR0"/>
@@ -2350,4 +2354,10 @@ Source: www.kingbright.com</description>
 </sheets>
 </schematic>
 </drawing>
+<compatibility>
+<note version="6.3" minversion="6.2.2" severity="warning">
+Since Version 6.2.2 text objects can contain more than one line,
+which will not be processed correctly with this version.
+</note>
+</compatibility>
 </eagle>
