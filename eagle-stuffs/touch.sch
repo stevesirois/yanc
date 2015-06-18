@@ -7123,6 +7123,14 @@ We've spent an enormous amount of time creating and checking these footprints an
 <text x="-1.3462" y="1.8288" size="1.27" layer="25" ratio="10">&gt;NAME</text>
 <text x="-1.27" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
 </package>
+<package name="FB">
+<wire x1="0.5" y1="0" x2="-1.5" y2="0" width="0.254" layer="21"/>
+<circle x="2.5" y="0" radius="2" width="0.127" layer="21"/>
+<circle x="2.5" y="0" radius="1.5" width="0.127" layer="21"/>
+<pad name="P$1" x="-2.5" y="0" drill="0.8" diameter="1.9304"/>
+<pad name="P$2" x="2.5" y="0" drill="0.8" diameter="1.9304"/>
+<text x="-3.81" y="2.54" size="1.27" layer="25" font="vector">&gt;NAME</text>
+</package>
 </packages>
 <symbols>
 <symbol name="PINHD3">
@@ -7144,6 +7152,20 @@ We've spent an enormous amount of time creating and checking these footprints an
 <text x="-6.35" y="3.175" size="1.778" layer="95">&gt;NAME</text>
 <text x="-6.35" y="-5.08" size="1.778" layer="96">&gt;VALUE</text>
 <pin name="1" x="-2.54" y="0" visible="pad" length="short" direction="pas" function="dot"/>
+</symbol>
+<symbol name="FB">
+<wire x1="0" y1="5.08" x2="1.27" y2="3.81" width="0.254" layer="94" curve="-90" cap="flat"/>
+<wire x1="0" y1="2.54" x2="1.27" y2="3.81" width="0.254" layer="94" curve="90" cap="flat"/>
+<wire x1="0" y1="2.54" x2="1.27" y2="1.27" width="0.254" layer="94" curve="-90" cap="flat"/>
+<wire x1="0" y1="0" x2="1.27" y2="1.27" width="0.254" layer="94" curve="90" cap="flat"/>
+<wire x1="0" y1="0" x2="1.27" y2="-1.27" width="0.254" layer="94" curve="-90" cap="flat"/>
+<wire x1="0" y1="-2.54" x2="1.27" y2="-1.27" width="0.254" layer="94" curve="90" cap="flat"/>
+<wire x1="0" y1="-2.54" x2="1.27" y2="-3.81" width="0.254" layer="94" curve="-90" cap="flat"/>
+<wire x1="0" y1="-5.08" x2="1.27" y2="-3.81" width="0.254" layer="94" curve="90" cap="flat"/>
+<text x="-1.27" y="-5.08" size="1.778" layer="95" rot="R90">&gt;NAME</text>
+<text x="3.81" y="-5.08" size="1.778" layer="96" rot="R90">&gt;VALUE</text>
+<pin name="2" x="0" y="-7.62" visible="off" length="short" direction="pas" swaplevel="1" rot="R90"/>
+<pin name="1" x="0" y="7.62" visible="off" length="short" direction="pas" swaplevel="1" rot="R270"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -7201,6 +7223,25 @@ With round pins</description>
 </device>
 </devices>
 </deviceset>
+<deviceset name="FB">
+<description>&lt;b&gt;Ferrite bead&lt;/b&gt;
+&lt;p&gt;
+Digikey #P9821BK-ND</description>
+<gates>
+<gate name="G$1" symbol="FB" x="-2.54" y="0"/>
+</gates>
+<devices>
+<device name="" package="FB">
+<connects>
+<connect gate="G$1" pin="1" pad="P$1"/>
+<connect gate="G$1" pin="2" pad="P$2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
 </devicesets>
 </library>
 </libraries>
@@ -7223,6 +7264,7 @@ With round pins</description>
 <part name="FRAME1" library="frames" deviceset="FRAME_A_L" device=""/>
 <part name="TOUCH" library="adafruit" deviceset="PINHD-1X3" device=""/>
 <part name="SENSE" library="adafruit" deviceset="PINHD-1X1" device=""/>
+<part name="FBEAD" library="adafruit" deviceset="FB" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -7245,6 +7287,7 @@ With round pins</description>
 <instance part="FRAME1" gate="G$2" x="172.72" y="2.54"/>
 <instance part="TOUCH" gate="A" x="190.5" y="114.3"/>
 <instance part="SENSE" gate="G$1" x="190.5" y="101.6"/>
+<instance part="FBEAD" gate="G$1" x="195.58" y="124.46"/>
 </instances>
 <busses>
 </busses>
@@ -7280,10 +7323,9 @@ With round pins</description>
 <wire x1="121.92" y1="134.62" x2="93.98" y2="134.62" width="0.1524" layer="91"/>
 <wire x1="93.98" y1="134.62" x2="93.98" y2="114.3" width="0.1524" layer="91"/>
 <wire x1="144.78" y1="134.62" x2="195.58" y2="134.62" width="0.1524" layer="91"/>
-<wire x1="195.58" y1="134.62" x2="195.58" y2="114.3" width="0.1524" layer="91"/>
 <junction x="144.78" y="134.62"/>
-<pinref part="TOUCH" gate="A" pin="2"/>
-<wire x1="195.58" y1="114.3" x2="187.96" y2="114.3" width="0.1524" layer="91"/>
+<pinref part="FBEAD" gate="G$1" pin="1"/>
+<wire x1="195.58" y1="134.62" x2="195.58" y2="132.08" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$16" class="0">
@@ -7320,6 +7362,14 @@ With round pins</description>
 <pinref part="R1" gate="G$1" pin="1"/>
 <wire x1="187.96" y1="101.6" x2="172.72" y2="101.6" width="0.1524" layer="91"/>
 <wire x1="172.72" y1="101.6" x2="172.72" y2="116.84" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$3" class="0">
+<segment>
+<pinref part="TOUCH" gate="A" pin="2"/>
+<wire x1="195.58" y1="114.3" x2="187.96" y2="114.3" width="0.1524" layer="91"/>
+<pinref part="FBEAD" gate="G$1" pin="2"/>
+<wire x1="195.58" y1="114.3" x2="195.58" y2="116.84" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
