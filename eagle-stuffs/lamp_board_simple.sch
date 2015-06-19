@@ -2098,6 +2098,10 @@ Source: www.kingbright.com</description>
 mounted on the bottom layer. 
 This is why the cathod connector on the
 driver board is mirror to account for this.</text>
+<text x="78.74" y="48.26" size="2.54" layer="98" font="fixed">Nixies are mounted on top layer so
+connectors has been mirror on the board
+to account for this; otherwise
+wrong digit will lit up.</text>
 </plain>
 <instances>
 <instance part="N1" gate="G$1" x="114.3" y="127" rot="MR0"/>

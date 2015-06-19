@@ -7285,7 +7285,7 @@ Digikey #P9821BK-ND</description>
 <instance part="C8" gate="G$1" x="93.98" y="111.76"/>
 <instance part="FRAME1" gate="G$1" x="0" y="0"/>
 <instance part="FRAME1" gate="G$2" x="172.72" y="2.54"/>
-<instance part="TOUCH" gate="A" x="190.5" y="114.3"/>
+<instance part="TOUCH" gate="A" x="187.96" y="114.3"/>
 <instance part="SENSE" gate="G$1" x="190.5" y="101.6"/>
 <instance part="FBEAD" gate="G$1" x="195.58" y="124.46"/>
 </instances>
@@ -7306,7 +7306,7 @@ Digikey #P9821BK-ND</description>
 <wire x1="195.58" y1="96.52" x2="195.58" y2="111.76" width="0.1524" layer="91"/>
 <junction x="104.14" y="96.52"/>
 <pinref part="TOUCH" gate="A" pin="3"/>
-<wire x1="195.58" y1="111.76" x2="187.96" y2="111.76" width="0.1524" layer="91"/>
+<wire x1="195.58" y1="111.76" x2="185.42" y2="111.76" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="+5V" class="0">
@@ -7353,7 +7353,7 @@ Digikey #P9821BK-ND</description>
 <wire x1="104.14" y1="129.54" x2="180.34" y2="129.54" width="0.1524" layer="91"/>
 <wire x1="180.34" y1="129.54" x2="180.34" y2="116.84" width="0.1524" layer="91"/>
 <pinref part="TOUCH" gate="A" pin="1"/>
-<wire x1="180.34" y1="116.84" x2="187.96" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="180.34" y1="116.84" x2="185.42" y2="116.84" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$2" class="0">
@@ -7367,7 +7367,7 @@ Digikey #P9821BK-ND</description>
 <net name="N$3" class="0">
 <segment>
 <pinref part="TOUCH" gate="A" pin="2"/>
-<wire x1="195.58" y1="114.3" x2="187.96" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="195.58" y1="114.3" x2="185.42" y2="114.3" width="0.1524" layer="91"/>
 <pinref part="FBEAD" gate="G$1" pin="2"/>
 <wire x1="195.58" y1="114.3" x2="195.58" y2="116.84" width="0.1524" layer="91"/>
 </segment>

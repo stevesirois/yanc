@@ -139,6 +139,7 @@
 <hole x="54.61" y="41.91" drill="2.8"/>
 <hole x="54.61" y="2.54" drill="2.8"/>
 <rectangle x1="34.29" y1="26.67" x2="39.37" y2="29.21" layer="41"/>
+<text x="44.45" y="38.1" size="1.778" layer="25">Rev. A</text>
 </plain>
 <libraries>
 <library name="linear">

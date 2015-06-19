@@ -22017,7 +22017,7 @@ Source: http://focus.ti.com/lit/ds/symlink/tps61070.pdf</description>
 <wire x1="144.78" y1="137.16" x2="144.78" y2="99.06" width="0.1524" layer="98" style="shortdash"/>
 <wire x1="144.78" y1="99.06" x2="7.62" y2="99.06" width="0.1524" layer="98" style="shortdash"/>
 <wire x1="7.62" y1="99.06" x2="7.62" y2="203.2" width="0.1524" layer="98" style="shortdash"/>
-<text x="38.1" y="208.28" size="1.778" layer="98">Power supply (+5v / 500mA, +170v / 6 mA)</text>
+<text x="38.1" y="208.28" size="1.778" layer="98">Power supply output (+5v / 500mA, +170v / 6 mA)</text>
 <text x="223.52" y="45.72" size="1.778" layer="98">Cathode drivers &amp; Ambient led</text>
 <wire x1="147.32" y1="134.62" x2="269.24" y2="134.62" width="0.1524" layer="98" style="shortdash"/>
 <wire x1="269.24" y1="134.62" x2="269.24" y2="48.26" width="0.1524" layer="98" style="shortdash"/>
