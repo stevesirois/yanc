@@ -73,7 +73,7 @@
 <text x="6.985" y="13.335" size="1.016" layer="21">1</text>
 <text x="67.945" y="8.255" size="1.016" layer="21">1</text>
 <text x="10.16" y="66.675" size="1.016" layer="21">+V</text>
-<text x="6.35" y="1.905" size="1.778" layer="21">Rev. A</text>
+<text x="6.35" y="1.905" size="1.778" layer="21">Rev. B</text>
 </plain>
 <libraries>
 <library name="transistor">
