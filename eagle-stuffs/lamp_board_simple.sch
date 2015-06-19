@@ -2093,7 +2093,7 @@ Source: www.kingbright.com</description>
 <text x="190.5" y="33.02" size="2.54" layer="98" font="fixed">Project:</text>
 <text x="208.28" y="33.02" size="2.54" layer="98" font="fixed">Y.A.N.C. (Yet Another Nixie Clock)</text>
 <text x="190.5" y="15.24" size="2.54" layer="98" font="fixed">Licensed under CERN OHL v.1.2 or later</text>
-<text x="279.4" y="15.24" size="2.54" layer="98" font="fixed">A</text>
+<text x="279.4" y="15.24" size="2.54" layer="98" font="fixed">B</text>
 <text x="129.54" y="187.96" size="2.54" layer="98" font="fixed">Note that those pinhead connector are
 mounted on the bottom layer. 
 This is why the cathod connector on the
@@ -2123,9 +2123,9 @@ driver board is mirror to account for this.</text>
 <wire x1="124.46" y1="93.98" x2="124.46" y2="137.16" width="0.1524" layer="91"/>
 <junction x="124.46" y="137.16"/>
 <wire x1="165.1" y1="177.8" x2="124.46" y2="177.8" width="0.1524" layer="91"/>
-<wire x1="124.46" y1="177.8" x2="124.46" y2="137.16" width="0.1524" layer="91"/>
 <pinref part="IN/OUT" gate="A" pin="1"/>
 <pinref part="OUT/IN" gate="A" pin="1"/>
+<wire x1="124.46" y1="177.8" x2="124.46" y2="137.16" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$14" class="0">
