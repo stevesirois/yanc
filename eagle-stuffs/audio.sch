@@ -11378,6 +11378,10 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <text x="193.04" y="25.4" size="2.54" layer="98" font="fixed">Y.A.N.C. (Yet Another Nixie Clock)</text>
 <text x="175.26" y="7.62" size="2.54" layer="98" font="fixed">Licensed under CERN OHL v.1.2 or later</text>
 <text x="264.16" y="7.62" size="2.54" layer="98" font="fixed">A</text>
+<text x="76.2" y="45.72" size="1.778" layer="98" font="fixed">Preamp</text>
+<text x="132.08" y="45.72" size="1.778" layer="98" font="fixed">Envelope follower</text>
+<text x="190.5" y="45.72" size="1.778" layer="98" font="fixed">Buffer</text>
+<text x="226.06" y="45.72" size="1.778" layer="98" font="fixed">Schmitt Trigger</text>
 </plain>
 <instances>
 <instance part="FRAME1" gate="G$1" x="0" y="0"/>
