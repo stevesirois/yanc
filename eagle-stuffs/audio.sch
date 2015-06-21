@@ -11365,7 +11365,7 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <part name="R12" library="rcl" deviceset="R-US_" device="0204/2V" value="15k"/>
 <part name="R13" library="rcl" deviceset="R-US_" device="0204/2V" value="5.1k"/>
 <part name="R9" library="rcl" deviceset="R-US_" device="0204/2V" value="1k"/>
-<part name="C1" library="rcl" deviceset="CPOL-US" device="E3.5-10" value="250"/>
+<part name="C1" library="rcl" deviceset="CPOL-US" device="E3.5-10" value="220"/>
 <part name="C2" library="rcl" deviceset="CPOL-US" device="E3.5-8" value="2.2"/>
 <part name="C3" library="rcl" deviceset="CPOL-US" device="E3.5-8" value="2.2"/>
 </parts>
