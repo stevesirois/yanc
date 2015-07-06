@@ -1724,7 +1724,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="19.939" y="13.462" size="1.27" layer="25" ratio="10" rot="R90"/>
 <attribute name="VALUE" x="13.589" y="14.605" size="1.27" layer="27" ratio="10"/>
 </element>
-<element name="IC3" library="pot-xicor" package="DIL08" value="DS1804-50k" x="24.13" y="30.48" smashed="yes">
+<element name="IC3" library="pot-xicor" package="DIL08" value="DS1804-100k" x="24.13" y="30.48" smashed="yes">
 <attribute name="OC_NEWARK" value="51J6928" x="24.13" y="30.48" size="1.778" layer="27" display="off"/>
 <attribute name="MPN" value="X9C102P" x="24.13" y="30.48" size="1.778" layer="27" display="off"/>
 <attribute name="MF" value="INTERSIL" x="24.13" y="30.48" size="1.778" layer="27" display="off"/>

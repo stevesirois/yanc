@@ -11325,7 +11325,7 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <parts>
 <part name="FRAME1" library="frames" deviceset="FRAME_A_L" device=""/>
 <part name="IC2" library="linear" deviceset="TL084" device="P"/>
-<part name="IC3" library="pot-xicor" deviceset="X9C102*" device="P" value="DS1804-50k"/>
+<part name="IC3" library="pot-xicor" deviceset="X9C102*" device="P" value="DS1804-100k"/>
 <part name="IC4" library="pot-xicor" deviceset="X9C102*" device="P" value="DS1804-10k"/>
 <part name="SUPPLY1" library="supply2" deviceset="+5V" device=""/>
 <part name="SUPPLY2" library="supply2" deviceset="GND" device=""/>
