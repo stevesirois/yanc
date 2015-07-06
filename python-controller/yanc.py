@@ -20,10 +20,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
-
 import spidev
 import RPi.GPIO as GPIO
 import time
+import datetime
 import os
 import signal
 import httplib2
@@ -33,26 +33,25 @@ import sqlite3
 
 from multiprocessing import Process, Queue
 from Queue import Empty
-
 from flask import Flask, request, Response
 from oauth2client.client import SignedJwtAssertionCredentials
-
-import datetime
 from apiclient import discovery
 
 # Setup IO (PP = Physical Pin, (l) = Denote an active state on low)
 # Nixie Board
-out_SRCLR = 26 # PP 37 - SCL [SRCLR] (l) pin on 74LS595 - 0 = clear, 1 = enable
-out_led = 12 # PP 32 - Ambient led driver - will be PWM driven
+out_SRCLR = 26  # PP 37 - SCL [SRCLR] (l) pin on 74LS595 - 0 = clear, 1 = enable
+out_led = 12    # PP 32 - Ambient led driver - will be PWM driven
 
 # Digital potentiometer
-out_up_down = 5 # PP 29 - U/D(l) on DS1804
-out_inc = 6 # PP 31 - INC(h) on DS1804
-out_cs_audio = 13 # PP 33 - CS(l) on DS1804 for audio level playback
-out_cs_micro = 17 # PP 11 - CS(l) on DS1804 for microphone sensitivity
-
-in_noise_detect = 23  # PP 16 - Output of OpAmp TL084
-in_touch_detect = 24 # PP 18 - Atmel AT42QT1011 QTouch Capacitive 
+out_up_down = 22    # PP 15(7) - U/D(l) on DS1804
+out_inc = 5         # PP 29(5) - INC(h) on DS1804
+out_cs_audio = 13   # PP 33(1) - CS(l) on DS1804 for audio level playback
+out_cs_micro = 6    # PP 31(3) - CS(l) on DS1804 for microphone sensitivity
+# Audio enabled
+out_audio = 24      # PP 18(8) - AUDIO ENABLED on SSM2211
+# Inputs
+in_noise_detect = 17    # PP 11(9) - Output of OpAmp TL084
+in_touch_detect = 25    # PP 22(6) - Atmel AT42QT1011 QTouch Capacitive 
 
 GPIO.setmode(GPIO.BCM)
 
@@ -61,40 +60,36 @@ GPIO.setup(out_led, GPIO.OUT)
 
 GPIO.setup(out_up_down, GPIO.OUT) 
 GPIO.setup(out_inc, GPIO.OUT) 
-GPIO.setup(out_cs_audio, GPIO.OUT) 
+GPIO.setup(out_cs_audio, GPIO.OUT)
+GPIO.setup(out_audio, GPIO.OUT) 
 GPIO.setup(out_cs_micro, GPIO.OUT)
 
 GPIO.setup(in_noise_detect, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(in_touch_detect, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
 
-# Spare pins
-#GPIO.setup(22, GPIO.OUT) # PP 15
-#GPIO.setup(25, GPIO.IN) # PP 22
+# Spare pin
+# BCM 23, PP 16(10)
 
+# Define call back for external events (Mic + touch)
 def my_callback(channel):
 	print "falling edge detected on 23"
 
 def my_callback2(channel):
 	print "falling edge detected on 24"
 
-#GPIO.add_event_detect(23, GPIO.FALLING, callback=my_callback, bouncetime=300)  
-#GPIO.add_event_detect(24, GPIO.FALLING, callback=my_callback2, bouncetime=300)  
-#GPIO.wait_for_edge(24, GPIO.RISING)
+#GPIO.add_event_detect(in_noise_detect, GPIO.FALLING, callback=my_callback, bouncetime=300)  
+#GPIO.add_event_detect(in_touch_detect, GPIO.FALLING, callback=my_callback2, bouncetime=300)  
+#GPIO.wait_for_edge(in_touch_detect, GPIO.RISING)
 
-# Turn Led at 50% for now
+# TEMP: Turn Led at 50% for now
 led = GPIO.PWM(out_led, 60)
 led.start(50)
-
-# Load private info into JSON Object - SHOULD BE IN SAME DIR AS THIS FILE
-with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-        'private_info.json')) as data_file:
-    myprivateinfo = json.load(data_file)
 
 def show_nixie(q_display):
     # Make sure child process ignore ctrl-c for clean stop
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-    # I use SPI to 'talk' to my shift register (74LS595)
+    # Use SPI to 'talk' to the shift register (74LS595)
     # No bit packing here! :-)
     spi = spidev.SpiDev()
     spi.open(0,0) # port 0, device CE0 [BCM 8 / PP 24]
@@ -103,15 +98,16 @@ def show_nixie(q_display):
 
     usleep = lambda x: time.sleep(x/1000000.0)
 
-    rate = 70
-    cycle = 1000 / rate
-    nixie = cycle / 4 * 1000.0
-
+    rate = 100 # (Hz) under 50, blinking will start to occur!
+    cycle = 1000000.0 / rate / 4 # (us) one full cycle per nixie (4)
+    blanking = 300 # (us) - prevent ghosting effect
+    turnon = 100 # (us) Turn-on time, typical between 10-100
+    
     while True:
         try:
             data = q_display.get_nowait()
             # Must not block! :-) check link below for more info
-            # http://stackoverflow.com/feeds/question/31235112
+            # stackoverflow.com/feeds/question/31235112
         except Empty:  # queue was empty, better chance next time
             pass
 
@@ -128,22 +124,24 @@ def show_nixie(q_display):
                     on_hex = str(tube) + d 
 
                 spi.xfer2([int(off_hex,16)])
-                usleep(300)
+                usleep(blanking) # with d between 0-9, one cathode is always on
                 spi.xfer2([int(on_hex,16)])
-                usleep(nixie-300.0-100.0)
+                usleep(cycle-blanking-turnon)
 
-                if tube == 8:
-                    tube = 4
-                elif tube == 4:
-                    tube = 2
-                elif tube == 2:
-                    tube = 1     
+                # Next tube
+                tube = tube >> 1
 
     # Close all
     spi.xfer2([0x00])
     spi.xfer2([0x00])
     spi.close()
     print "show_nixie is done."
+
+
+# Load private info into JSON Object - SHOULD BE IN SAME DIR AS THIS FILE
+with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+        'private_info.json')) as data_file:
+    myprivateinfo = json.load(data_file)
 
 def get_credentials():
     
@@ -235,7 +233,7 @@ def led_brightness():
 def web_server():
     app.run(port=5000, debug=True, host='0.0.0.0', use_reloader=False)
     # IMPORTANT : use_reloader not used otherwise it will reload itself
-    #   on startup! Check this: http://stackoverflow.com/feeds/question/25504149
+    #   on startup! Check this: stackoverflow.com/feeds/question/25504149
 
 # Main Loop
 if __name__ == '__main__':
@@ -243,7 +241,7 @@ if __name__ == '__main__':
     p = Process(target=show_nixie, args=(q_display,)).start()
     w = Process(target=web_server).start()
 
-    print "Main started!"
+    print "main started!"
     try:
         while True:
             q_display.put(time.strftime('%H%M'))
