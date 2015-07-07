@@ -2,9 +2,9 @@
 # *********************************************************************
 # Y.A.N.C. - Yet Another Nixie Clock
 #
-# Author	: Steve Sirois
-# Version	: A
-# Date		: 2015-05-26
+# Author    : Steve Sirois
+# Version   : A
+# Date      : 2015-05-26
 #
 # Copyright 2015 Steve Sirois  (steve.sirois@gmail.com)
 # *********************************************************************
@@ -70,20 +70,37 @@ GPIO.setup(in_touch_detect, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 # Spare pin
 # BCM 23, PP 16(10)
 
+GPIO.output(out_SRCLR, GPIO.LOW)
+GPIO.output(out_led,GPIO.LOW)
+
 # Define call back for external events (Mic + touch)
 def my_callback(channel):
-	print "falling edge detected on 23"
+    print 'falling edge detected on 23'
 
 def my_callback2(channel):
-	print "falling edge detected on 24"
+    print 'falling edge detected on 24'
 
 #GPIO.add_event_detect(in_noise_detect, GPIO.FALLING, callback=my_callback, bouncetime=300)  
 #GPIO.add_event_detect(in_touch_detect, GPIO.FALLING, callback=my_callback2, bouncetime=300)  
 #GPIO.wait_for_edge(in_touch_detect, GPIO.RISING)
 
-# TEMP: Turn Led at 50% for now
-led = GPIO.PWM(out_led, 60)
-led.start(50)
+def show_led(q_led):
+    # Make sure child process ignore ctrl-c for clean stop
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+    led = GPIO.PWM(out_led, 60) # 60 Hz refresh
+    data = 0.0
+
+    while data != -1:
+        try:
+            data = q_led.get_nowait()
+        except Empty:  # queue was empty, better chance next time
+            pass
+        
+        if data >= 0.0:
+            led.start(data)
+
+    print 'show_led is done.'
 
 def show_nixie(q_display):
     # Make sure child process ignore ctrl-c for clean stop
@@ -95,14 +112,18 @@ def show_nixie(q_display):
     spi.open(0,0) # port 0, device CE0 [BCM 8 / PP 24]
     # Other detail : SCLK [BCM 11 / PP 23], MOSI [BCM 10 / PP 19]    
     spi.xfer2([0x00])
+    spi.xfer2([0x00])
+    GPIO.output(out_SRCLR, GPIO.HIGH)
 
-    usleep = lambda x: time.sleep(x/1000000.0)
+    usleep = lambda x: time.sleep(x / 1000000.0)
 
     rate = 100 # (Hz) under 50, blinking will start to occur!
     cycle = 1000000.0 / rate / 4 # (us) one full cycle per nixie (4)
     blanking = 300 # (us) - prevent ghosting effect
     turnon = 100 # (us) Turn-on time, typical between 10-100
-    
+
+    data = None
+
     while True:
         try:
             data = q_display.get_nowait()
@@ -111,22 +132,28 @@ def show_nixie(q_display):
         except Empty:  # queue was empty, better chance next time
             pass
 
-        if data == 'STOP':
+        if data == None:
+            pass
+        elif data == 'STOP':
             break
-        else: 
+        elif data == 'OFF':
+            GPIO.output(out_SRCLR, GPIO.LOW)
+        elif data == 'ON':
+            GPIO.output(out_SRCLR, GPIO.HIGH)
+        else:
             tube = 8
             for d in data:
-                if tube == 8 and d == "0":  # don't turn on first 0
+                if tube == 8 and d == "0":  # don't turn on first digit
                     off_hex = "00"
                     on_hex = "00"
                 else:
                     off_hex = "0" + d 
                     on_hex = str(tube) + d 
 
-                spi.xfer2([int(off_hex,16)])
+                spi.xfer2([int(off_hex, 16)])
                 usleep(blanking) # with d between 0-9, one cathode is always on
-                spi.xfer2([int(on_hex,16)])
-                usleep(cycle-blanking-turnon)
+                spi.xfer2([int(on_hex, 16)])
+                usleep(cycle - blanking + turnon)
 
                 # Next tube
                 tube = tube >> 1
@@ -135,14 +162,15 @@ def show_nixie(q_display):
     spi.xfer2([0x00])
     spi.xfer2([0x00])
     spi.close()
-    print "show_nixie is done."
-
+    GPIO.output(out_SRCLR, GPIO.LOW)
+    print 'show_nixie is done.'
 
 # Load private info into JSON Object - SHOULD BE IN SAME DIR AS THIS FILE
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),
         'private_info.json')) as data_file:
     myprivateinfo = json.load(data_file)
 
+# ******************************************************************************
 def get_credentials():
     
     service_account_email = myprivateinfo['service_account_email']
@@ -192,18 +220,6 @@ def get_next_event():
     
     return json.JSONEncoder(indent=4, separators=(',', ': ')).encode(out)
 
-# ******************************************************************************
-
-app = Flask(__name__)
-app_name = 'yanc' 
-app_version = 'v1.0'
-
-@app.route('/'+app_name+'/api/'+app_version+'/next-alarm')
-def next_alarm():
-    return get_next_event()
-
-@app.route('/'+app_name+'/api/'+app_version+'/led-brightness', 
-    methods=['PUT', 'GET'])
 def led_brightness():
     if request.method == 'PUT':
         data = request.json
@@ -230,24 +246,42 @@ def led_brightness():
         resp = Response(js, status=200, mimetype='application/json')
         return resp
 
+# ******************************************************************************
+app = Flask(__name__)
+app_name = 'yanc' 
+app_version = 'v1.0'
+
+@app.route('/'+app_name+'/api/'+app_version+'/next-alarm')
+def next_alarm():
+    return get_next_event()
+
+@app.route('/'+app_name+'/api/'+app_version+'/led-brightness', 
+    methods=['PUT', 'GET'])
+
 def web_server():
     app.run(port=5000, debug=True, host='0.0.0.0', use_reloader=False)
     # IMPORTANT : use_reloader not used otherwise it will reload itself
     #   on startup! Check this: stackoverflow.com/feeds/question/25504149
 
+# ******************************************************************************
 # Main Loop
 if __name__ == '__main__':
     q_display = Queue()
-    p = Process(target=show_nixie, args=(q_display,)).start()
-    w = Process(target=web_server).start()
+    q_led = Queue()
+    nixie = Process(target=show_nixie, args=(q_display,)).start()
+    rest = Process(target=web_server).start()
+    led = Process(target=show_led, args=(q_led,)).start()
 
-    print "main started!"
+    q_led.put(50.0)
+
+    print 'main started!'
     try:
         while True:
             q_display.put(time.strftime('%H%M'))
             time.sleep(1)
 
     except KeyboardInterrupt:
-        print "\nmain stopped!"
+        print '\nmain stopped!'
         q_display.put('STOP')
+        q_led.put(-1)
         GPIO.cleanup()
