@@ -1,0 +1,6 @@
+{
+    "service_account_email":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@developer.gserviceaccount.com",
+    "private_key_file":"mykey.pem",
+    "calendarId":"xxxxxxxxxxxxxxxxxxxxx@group.calendar.google.com",
+    "database":"mydatabase.db"
+}
