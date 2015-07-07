@@ -220,6 +220,17 @@ def get_next_event():
     
     return json.JSONEncoder(indent=4, separators=(',', ': ')).encode(out)
 
+# ******************************************************************************
+app = Flask(__name__)
+app_name = 'yanc' 
+app_version = 'v1.0'
+
+@app.route('/'+app_name+'/api/'+app_version+'/next-alarm')
+def next_alarm():
+    return get_next_event()
+
+@app.route('/'+app_name+'/api/'+app_version+'/led-brightness', 
+    methods=['PUT', 'GET'])
 def led_brightness():
     if request.method == 'PUT':
         data = request.json
@@ -245,18 +256,6 @@ def led_brightness():
 
         resp = Response(js, status=200, mimetype='application/json')
         return resp
-
-# ******************************************************************************
-app = Flask(__name__)
-app_name = 'yanc' 
-app_version = 'v1.0'
-
-@app.route('/'+app_name+'/api/'+app_version+'/next-alarm')
-def next_alarm():
-    return get_next_event()
-
-@app.route('/'+app_name+'/api/'+app_version+'/led-brightness', 
-    methods=['PUT', 'GET'])
 
 def web_server():
     app.run(port=5000, debug=True, host='0.0.0.0', use_reloader=False)
