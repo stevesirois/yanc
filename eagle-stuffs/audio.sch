@@ -13607,7 +13607,6 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <parts>
 <part name="FRAME1" library="frames" deviceset="FRAME_A_L" device=""/>
 <part name="IC2" library="linear" deviceset="TL084" device="P"/>
-<part name="IC3" library="pot-xicor" deviceset="X9C102*" device="P" value="DS1804-100k"/>
 <part name="IC4" library="pot-xicor" deviceset="X9C102*" device="P" value="DS1804-10k"/>
 <part name="SUPPLY1" library="supply2" deviceset="+5V" device=""/>
 <part name="SUPPLY2" library="supply2" deviceset="GND" device=""/>
@@ -13624,8 +13623,6 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <part name="IC1" library="Analog Devices_By_element14_Batch_1" deviceset="SSM2211SZ" device=""/>
 <part name="SUPPLY3" library="supply2" deviceset="VCC" device="" value="Enabled"/>
 <part name="SUPPLY6" library="supply2" deviceset="VCC" device="" value="Enabled"/>
-<part name="SUPPLY9" library="supply2" deviceset="+5V" device=""/>
-<part name="SUPPLY14" library="supply2" deviceset="GND" device=""/>
 <part name="TOUCH" library="adafruit" deviceset="PINHD-1X3" device=""/>
 <part name="SUPPLY15" library="supply2" deviceset="+5V" device=""/>
 <part name="SUPPLY16" library="supply2" deviceset="GND" device=""/>
@@ -13633,7 +13630,7 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <part name="C5" library="rcl" deviceset="CPOL-US" device="E2-4" value="1"/>
 <part name="D1" library="adafruit" deviceset="SCHOTTKY-DIODE" device="DO41-7" value="1N5817"/>
 <part name="C6" library="rcl" deviceset="CPOL-US" device="E2-4" value="10"/>
-<part name="R14" library="rcl" deviceset="R-US_" device="0204/2V" value="20k"/>
+<part name="R14" library="rcl" deviceset="R-US_" device="0204/2V" value="22k"/>
 <part name="R2" library="rcl" deviceset="R-US_" device="0204/2V" value="1k"/>
 <part name="R5" library="rcl" deviceset="R-US_" device="0204/2V" value="1M"/>
 <part name="R6" library="rcl" deviceset="R-US_" device="0204/2V" value="10k"/>
@@ -13655,6 +13652,7 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <part name="R17" library="rcl" deviceset="R-US_" device="0204/2V" value="10k"/>
 <part name="R18" library="rcl" deviceset="R-US_" device="0204/2V" value="10k"/>
 <part name="C7" library="rcl" deviceset="C-US" device="025-024X044" value="0.1"/>
+<part name="R19" library="rcl" deviceset="R-US_" device="0204/2V" value="33k"/>
 </parts>
 <sheets>
 <sheet>
@@ -13664,7 +13662,7 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <text x="175.26" y="25.4" size="2.54" layer="98" font="fixed">Project:</text>
 <text x="193.04" y="25.4" size="2.54" layer="98" font="fixed">Y.A.N.C. (Yet Another Nixie Clock)</text>
 <text x="175.26" y="7.62" size="2.54" layer="98" font="fixed">Licensed under CERN OHL v.1.2 or later</text>
-<text x="264.16" y="7.62" size="2.54" layer="98" font="fixed">B</text>
+<text x="264.16" y="7.62" size="2.54" layer="98" font="fixed">C</text>
 <text x="76.2" y="45.72" size="1.778" layer="98" font="fixed">Preamp</text>
 <text x="132.08" y="45.72" size="1.778" layer="98" font="fixed">Envelope follower</text>
 <text x="190.5" y="45.72" size="1.778" layer="98" font="fixed">Buffer</text>
@@ -13678,7 +13676,6 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <attribute name="NAME" x="132.08" y="76.835" size="1.778" layer="95"/>
 <attribute name="VALUE" x="129.54" y="66.04" size="1.778" layer="96"/>
 </instance>
-<instance part="IC3" gate="1" x="149.86" y="172.72" rot="MR0"/>
 <instance part="IC4" gate="1" x="91.44" y="104.14" rot="MR0"/>
 <instance part="SUPPLY1" gate="+5V" x="254" y="149.86"/>
 <instance part="SUPPLY2" gate="GND" x="220.98" y="127"/>
@@ -13702,10 +13699,6 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <instance part="SUPPLY6" gate="G$1" x="254" y="127" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="269.875" y="123.825" size="1.778" layer="96" rot="MR0"/>
 </instance>
-<instance part="SUPPLY9" gate="+5V" x="170.18" y="203.2" smashed="yes">
-<attribute name="VALUE" x="168.275" y="206.375" size="1.778" layer="96"/>
-</instance>
-<instance part="SUPPLY14" gate="GND" x="170.18" y="157.48"/>
 <instance part="TOUCH" gate="A" x="246.38" y="185.42"/>
 <instance part="SUPPLY15" gate="+5V" x="254" y="193.04"/>
 <instance part="SUPPLY16" gate="GND" x="254" y="175.26"/>
@@ -13740,6 +13733,7 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <instance part="R17" gate="G$1" x="220.98" y="177.8" rot="R90"/>
 <instance part="R18" gate="G$1" x="220.98" y="165.1" rot="R90"/>
 <instance part="C7" gate="G$1" x="208.28" y="172.72"/>
+<instance part="R19" gate="G$1" x="116.84" y="160.02" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -13798,12 +13792,6 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <wire x1="220.98" y1="50.8" x2="256.54" y2="50.8" width="0.1524" layer="91"/>
 <wire x1="256.54" y1="50.8" x2="256.54" y2="86.36" width="0.1524" layer="91"/>
 <junction x="220.98" y="50.8"/>
-</segment>
-<segment>
-<pinref part="IC3" gate="1" pin="GND"/>
-<pinref part="SUPPLY14" gate="GND" pin="GND"/>
-<wire x1="162.56" y1="165.1" x2="170.18" y2="165.1" width="0.1524" layer="91"/>
-<wire x1="170.18" y1="165.1" x2="170.18" y2="160.02" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="TOUCH" gate="A" pin="3"/>
@@ -13874,12 +13862,6 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <pinref part="C1" gate="G$1" pin="+"/>
 </segment>
 <segment>
-<pinref part="IC3" gate="1" pin="VCC"/>
-<pinref part="SUPPLY9" gate="+5V" pin="+5V"/>
-<wire x1="162.56" y1="180.34" x2="170.18" y2="180.34" width="0.1524" layer="91"/>
-<wire x1="170.18" y1="180.34" x2="170.18" y2="200.66" width="0.1524" layer="91"/>
-</segment>
-<segment>
 <pinref part="TOUCH" gate="A" pin="2"/>
 <pinref part="SUPPLY15" gate="+5V" pin="+5V"/>
 <wire x1="243.84" y1="185.42" x2="254" y2="185.42" width="0.1524" layer="91"/>
@@ -13909,29 +13891,19 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <net name="N$20" class="0">
 <segment>
 <pinref part="IC4" gate="1" pin="!INC"/>
-<wire x1="149.86" y1="139.7" x2="175.26" y2="139.7" width="0.1524" layer="91"/>
-<wire x1="175.26" y1="139.7" x2="233.68" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="139.7" x2="233.68" y2="139.7" width="0.1524" layer="91"/>
 <wire x1="104.14" y1="104.14" x2="149.86" y2="104.14" width="0.1524" layer="91"/>
 <wire x1="149.86" y1="104.14" x2="149.86" y2="139.7" width="0.1524" layer="91"/>
 <pinref part="CTRL" gate="A" pin="5"/>
-<pinref part="IC3" gate="1" pin="!INC"/>
-<wire x1="162.56" y1="172.72" x2="175.26" y2="172.72" width="0.1524" layer="91"/>
-<wire x1="175.26" y1="172.72" x2="175.26" y2="139.7" width="0.1524" layer="91"/>
-<junction x="175.26" y="139.7"/>
 </segment>
 </net>
 <net name="N$21" class="0">
 <segment>
 <pinref part="IC4" gate="1" pin="U/D"/>
-<wire x1="147.32" y1="137.16" x2="177.8" y2="137.16" width="0.1524" layer="91"/>
-<wire x1="177.8" y1="137.16" x2="233.68" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="147.32" y1="137.16" x2="233.68" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="104.14" y1="106.68" x2="147.32" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="106.68" x2="147.32" y2="137.16" width="0.1524" layer="91"/>
 <pinref part="CTRL" gate="A" pin="7"/>
-<pinref part="IC3" gate="1" pin="U/D"/>
-<wire x1="162.56" y1="175.26" x2="177.8" y2="175.26" width="0.1524" layer="91"/>
-<wire x1="177.8" y1="175.26" x2="177.8" y2="137.16" width="0.1524" layer="91"/>
-<junction x="177.8" y="137.16"/>
 </segment>
 </net>
 <net name="N$10" class="0">
@@ -13978,16 +13950,10 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <wire x1="68.58" y1="162.56" x2="53.34" y2="162.56" width="0.1524" layer="91"/>
 <wire x1="68.58" y1="162.56" x2="68.58" y2="144.78" width="0.1524" layer="91"/>
 <wire x1="68.58" y1="144.78" x2="116.84" y2="144.78" width="0.1524" layer="91"/>
-<wire x1="116.84" y1="144.78" x2="116.84" y2="172.72" width="0.1524" layer="91"/>
 <junction x="68.58" y="162.56"/>
-<pinref part="IC3" gate="1" pin="W"/>
-<wire x1="137.16" y1="172.72" x2="134.62" y2="172.72" width="0.1524" layer="91"/>
-<wire x1="116.84" y1="172.72" x2="134.62" y2="172.72" width="0.1524" layer="91"/>
-<pinref part="IC3" gate="1" pin="L"/>
-<wire x1="137.16" y1="167.64" x2="134.62" y2="167.64" width="0.1524" layer="91"/>
-<wire x1="134.62" y1="167.64" x2="134.62" y2="172.72" width="0.1524" layer="91"/>
-<junction x="134.62" y="172.72"/>
 <pinref part="R14" gate="G$1" pin="2"/>
+<pinref part="R19" gate="G$1" pin="1"/>
+<wire x1="116.84" y1="144.78" x2="116.84" y2="154.94" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$5" class="0">
@@ -14022,8 +13988,8 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <wire x1="116.84" y1="195.58" x2="116.84" y2="177.8" width="0.1524" layer="91"/>
 <pinref part="IC1" gate="A" pin="VOUTA"/>
 <wire x1="116.84" y1="177.8" x2="106.68" y2="177.8" width="0.1524" layer="91"/>
-<pinref part="IC3" gate="1" pin="H"/>
-<wire x1="116.84" y1="177.8" x2="137.16" y2="177.8" width="0.1524" layer="91"/>
+<pinref part="R19" gate="G$1" pin="2"/>
+<wire x1="116.84" y1="165.1" x2="116.84" y2="177.8" width="0.1524" layer="91"/>
 <junction x="116.84" y="177.8"/>
 </segment>
 </net>
@@ -14034,15 +14000,6 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <wire x1="114.3" y1="198.12" x2="114.3" y2="175.26" width="0.1524" layer="91"/>
 <pinref part="IC1" gate="A" pin="VOUTB"/>
 <wire x1="114.3" y1="175.26" x2="106.68" y2="175.26" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$18" class="0">
-<segment>
-<pinref part="CTRL" gate="A" pin="1"/>
-<wire x1="233.68" y1="144.78" x2="180.34" y2="144.78" width="0.1524" layer="91"/>
-<wire x1="180.34" y1="144.78" x2="180.34" y2="170.18" width="0.1524" layer="91"/>
-<pinref part="IC3" gate="1" pin="!CS"/>
-<wire x1="180.34" y1="170.18" x2="162.56" y2="170.18" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$8" class="0">
