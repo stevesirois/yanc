@@ -25,11 +25,13 @@ import RPi.GPIO as GPIO
 import time
 import datetime
 import os
+import sys
 import signal
 import httplib2
 import json
 import oauth2client
 import sqlite3
+import pygame
 
 from multiprocessing import Process, Queue
 from Queue import Empty
@@ -45,61 +47,120 @@ out_led = 12    # PP 32 - Ambient led driver - will be PWM driven
 # Digital potentiometer
 out_up_down = 22    # PP 15(7) - U/D(l) on DS1804
 out_inc = 5         # PP 29(5) - INC(h) on DS1804
-out_cs_audio = 13   # PP 33(1) - CS(l) on DS1804 for audio level playback
-out_cs_micro = 6    # PP 31(3) - CS(l) on DS1804 for microphone sensitivity
+#out_cs_audio = 13   # PP 33(1) - CS(l) on DS1804 for audio level playback
+out_cs_audio = 6   # PP 33(1) - CS(l) on DS1804 for audio level playback
+out_cs_micro = 13    # PP 31(3) - CS(l) on DS1804 for microphone sensitivity
 # Audio enabled
 out_audio = 24      # PP 18(8) - AUDIO ENABLED on SSM2211
 # Inputs
 in_noise_detect = 17    # PP 11(9) - Output of OpAmp TL084
-in_touch_detect = 25    # PP 22(6) - Atmel AT42QT1011 QTouch Capacitive 
+#in_touch_detect = 25    # PP 22(6) - Atmel AT42QT1011 QTouch Capacitive 
+in_touch_detect = 23    # PP 22(6) - Atmel AT42QT1011 QTouch Capacitive 
 
+spare = 23 # PP 16(10)
+
+GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 
-GPIO.setup(out_SRCLR, GPIO.OUT) 
-GPIO.setup(out_led, GPIO.OUT)
+GPIO.setup(out_SRCLR, GPIO.OUT, initial=GPIO.LOW) 
+GPIO.setup(out_led, GPIO.OUT, initial=GPIO.LOW)
 
-GPIO.setup(out_up_down, GPIO.OUT) 
-GPIO.setup(out_inc, GPIO.OUT) 
-GPIO.setup(out_cs_audio, GPIO.OUT)
-GPIO.setup(out_audio, GPIO.OUT) 
-GPIO.setup(out_cs_micro, GPIO.OUT)
+GPIO.setup(out_up_down, GPIO.OUT, initial=GPIO.LOW) 
+GPIO.setup(out_inc, GPIO.OUT, initial=GPIO.LOW) 
+GPIO.setup(out_cs_audio, GPIO.OUT, initial=GPIO.LOW)    # Select Audio
+GPIO.setup(out_audio, GPIO.OUT, initial=GPIO.HIGH)      # Turn off sound for now
+GPIO.setup(out_cs_micro, GPIO.OUT, initial=GPIO.HIGH)   # De-select microphone
 
-GPIO.setup(in_noise_detect, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(in_touch_detect, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
-
-# Spare pin
-# BCM 23, PP 16(10)
-
-GPIO.output(out_SRCLR, GPIO.LOW)
-GPIO.output(out_led,GPIO.LOW)
+GPIO.setup(in_noise_detect, GPIO.IN)
+GPIO.setup(in_touch_detect, GPIO.IN) 
 
 # Define call back for external events (Mic + touch)
 def my_callback(channel):
-    print 'falling edge detected on 23'
+    print 'microphone detect'
 
 def my_callback2(channel):
-    print 'falling edge detected on 24'
+    print 'touch detect'
 
 #GPIO.add_event_detect(in_noise_detect, GPIO.FALLING, callback=my_callback, bouncetime=300)  
-#GPIO.add_event_detect(in_touch_detect, GPIO.FALLING, callback=my_callback2, bouncetime=300)  
-#GPIO.wait_for_edge(in_touch_detect, GPIO.RISING)
+#GPIO.add_event_detect(in_touch_detect, GPIO.RISING, callback=my_callback2)  
+
+
+def lower_volume(cycle):
+    print "lower volume"
+    usleep = lambda x: time.sleep(x / 1000000.0)
+    GPIO.output(out_audio, GPIO.LOW)
+    GPIO.output(out_cs_audio, GPIO.HIGH)
+    GPIO.output(out_up_down, GPIO.HIGH)
+    GPIO.output(out_cs_audio, GPIO.LOW)
+    for x in range(cycle):
+        GPIO.output(out_inc, GPIO.HIGH) 
+        usleep(1000)
+        GPIO.output(out_inc, GPIO.LOW)    
+        usleep(1000)
+
+def raise_volume(cycle):
+    print "raise volume"
+    usleep = lambda x: time.sleep(x / 1000000.0)
+    GPIO.output(out_audio, GPIO.LOW)
+    GPIO.output(out_cs_audio, GPIO.HIGH)
+    usleep(600)
+    GPIO.output(out_up_down, GPIO.LOW)
+    usleep(600)
+    GPIO.output(out_cs_audio, GPIO.LOW)
+    usleep(600)
+    for x in range(cycle):
+        GPIO.output(out_inc, GPIO.HIGH) 
+        usleep(1000)
+        GPIO.output(out_inc, GPIO.LOW)    
+        usleep(1000)
 
 def show_led(q_led):
     # Make sure child process ignore ctrl-c for clean stop
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-    led = GPIO.PWM(out_led, 60) # 60 Hz refresh
+    led = GPIO.PWM(out_led, 70) # 70 Hz refresh
+    led.start(99)
     data = 0.0
 
-    while data != -1:
+    pygame.mixer.init()
+    pygame.mixer.music.load("music/03Encore.mp3")
+    pygame.mixer.music.set_volume(1.0)
+    
+    
+
+    while True:
         try:
             data = q_led.get_nowait()
         except Empty:  # queue was empty, better chance next time
             pass
         
-        if data >= 0.0:
-            led.start(data)
+        #if data >= 0.0:
+        #    led.start(data)
 
+        if data == 50:
+            pygame.mixer.music.play()
+            GPIO.output(out_audio, GPIO.LOW)
+        elif data == 51:
+            pygame.mixer.music.stop()
+            GPIO.output(out_audio, GPIO.HIGH)
+        elif data == 52:
+            pygame.mixer.music.pause()
+        elif data == 53:
+            pygame.mixer.music.unpause()
+        elif data == 54:
+            pygame.mixer.music.fadeout(5000)
+        elif data == -1:
+            break
+        elif data == 57:
+            #raise volume
+            raise_volume(25)
+        elif data == 58:
+            #lower volume
+            lower_volume(25)
+        
+        data = None
+
+    pygame.mixer.quit()
     print 'show_led is done.'
 
 def show_nixie(q_display):
@@ -117,7 +178,7 @@ def show_nixie(q_display):
 
     usleep = lambda x: time.sleep(x / 1000000.0)
 
-    rate = 100 # (Hz) under 50, blinking will start to occur!
+    rate = 70 # (Hz) must be > 60 to get to "flicker fusion threshold" :-)
     cycle = 1000000.0 / rate / 4 # (us) one full cycle per nixie (4)
     blanking = 300 # (us) - prevent ghosting effect
     turnon = 100 # (us) Turn-on time, typical between 10-100
@@ -241,6 +302,7 @@ def led_brightness():
             (data['value'],)) #Carefull, single element tuple need trailing coma
         conn.commit()
         conn.close()
+        q_led.put(data['value'])
         return 'OK'  
     else:
         data = []
@@ -257,30 +319,55 @@ def led_brightness():
         resp = Response(js, status=200, mimetype='application/json')
         return resp
 
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...'
+
 def web_server():
     app.run(port=5000, debug=True, host='0.0.0.0', use_reloader=False)
     # IMPORTANT : use_reloader not used otherwise it will reload itself
     #   on startup! Check this: stackoverflow.com/feeds/question/25504149
+    
+def gracefull_quit(signal, frame):
+        print '\nKill - main stopped!'
+        q_display.put('STOP')
+        q_led.put(-1)
+        h = httplib2.Http()
+        h.request("http://172.16.42.3:5000/shutdown", "POST")
+        time.sleep(2)
+        GPIO.cleanup()
+        sys.exit(0)
+
+
+signal.signal(signal.SIGTERM, gracefull_quit)
 
 # ******************************************************************************
 # Main Loop
 if __name__ == '__main__':
+    global q_display, q_led # need global so every process can talk to it
+
     q_display = Queue()
-    q_led = Queue()
+    q_led = Queue() 
     nixie = Process(target=show_nixie, args=(q_display,)).start()
     rest = Process(target=web_server).start()
     led = Process(target=show_led, args=(q_led,)).start()
-
-    q_led.put(50.0)
 
     print 'main started!'
     try:
         while True:
             q_display.put(time.strftime('%H%M'))
-            time.sleep(1)
+            time.sleep(15)
 
     except KeyboardInterrupt:
-        print '\nmain stopped!'
+        print '\nCtrl-C - main stopped!'
         q_display.put('STOP')
         q_led.put(-1)
         GPIO.cleanup()
+ 
