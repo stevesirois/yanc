@@ -23,21 +23,16 @@
 import spidev
 import RPi.GPIO as GPIO
 import time
-import datetime
 import os
 import sys
+import stat
+import socket
 import signal
-import httplib2
-import json
-import oauth2client
 import sqlite3
 import pygame
 
 from multiprocessing import Process, Queue
 from Queue import Empty
-from flask import Flask, request, Response
-from oauth2client.client import SignedJwtAssertionCredentials
-from apiclient import discovery
 
 # Setup IO (PP = Physical Pin, (l) = Denote an active state on low)
 # Nixie Board
@@ -47,18 +42,17 @@ out_led = 12    # PP 32 - Ambient led driver - will be PWM driven
 # Digital potentiometer
 out_up_down = 22    # PP 15(7) - U/D(l) on DS1804
 out_inc = 5         # PP 29(5) - INC(h) on DS1804
-#out_cs_audio = 13   # PP 33(1) - CS(l) on DS1804 for audio level playback
-out_cs_audio = 6   # PP 33(1) - CS(l) on DS1804 for audio level playback
 out_cs_micro = 13    # PP 31(3) - CS(l) on DS1804 for microphone sensitivity
 # Audio enabled
 out_audio = 24      # PP 18(8) - AUDIO ENABLED on SSM2211
 # Inputs
 in_noise_detect = 17    # PP 11(9) - Output of OpAmp TL084
-#in_touch_detect = 25    # PP 22(6) - Atmel AT42QT1011 QTouch Capacitive 
-in_touch_detect = 23    # PP 22(6) - Atmel AT42QT1011 QTouch Capacitive 
+in_touch_detect = 25    # PP 22(6) - Atmel AT42QT1011 QTouch Capacitive 
 
-spare = 23 # PP 16(10)
+# Socket server for communication with uWSGI REST Server (yanc-REST)
+server_address = '/tmp/uds_socket'
 
+# Setup I/O
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 
@@ -67,7 +61,6 @@ GPIO.setup(out_led, GPIO.OUT, initial=GPIO.LOW)
 
 GPIO.setup(out_up_down, GPIO.OUT, initial=GPIO.LOW) 
 GPIO.setup(out_inc, GPIO.OUT, initial=GPIO.LOW) 
-GPIO.setup(out_cs_audio, GPIO.OUT, initial=GPIO.LOW)    # Select Audio
 GPIO.setup(out_audio, GPIO.OUT, initial=GPIO.HIGH)      # Turn off sound for now
 GPIO.setup(out_cs_micro, GPIO.OUT, initial=GPIO.HIGH)   # De-select microphone
 
@@ -84,84 +77,74 @@ def my_callback2(channel):
 #GPIO.add_event_detect(in_noise_detect, GPIO.FALLING, callback=my_callback, bouncetime=300)  
 #GPIO.add_event_detect(in_touch_detect, GPIO.RISING, callback=my_callback2)  
 
-
-def lower_volume(cycle):
-    print "lower volume"
+def adjust_gain(incr, direction):
     usleep = lambda x: time.sleep(x / 1000000.0)
-    GPIO.output(out_audio, GPIO.LOW)
-    GPIO.output(out_cs_audio, GPIO.HIGH)
-    GPIO.output(out_up_down, GPIO.HIGH)
-    GPIO.output(out_cs_audio, GPIO.LOW)
-    for x in range(cycle):
+    GPIO.output(out_cs_micro, GPIO.LOW)
+
+    if direction == 'UP':
+        GPIO.output(out_up_down, GPIO.HIGH)    
+    else:
+        GPIO.output(out_up_down, GPIO.LOW)    
+
+    for x in range(incr):
         GPIO.output(out_inc, GPIO.HIGH) 
         usleep(1000)
         GPIO.output(out_inc, GPIO.LOW)    
         usleep(1000)
 
-def raise_volume(cycle):
-    print "raise volume"
-    usleep = lambda x: time.sleep(x / 1000000.0)
-    GPIO.output(out_audio, GPIO.LOW)
-    GPIO.output(out_cs_audio, GPIO.HIGH)
-    usleep(600)
-    GPIO.output(out_up_down, GPIO.LOW)
-    usleep(600)
-    GPIO.output(out_cs_audio, GPIO.LOW)
-    usleep(600)
-    for x in range(cycle):
-        GPIO.output(out_inc, GPIO.HIGH) 
-        usleep(1000)
-        GPIO.output(out_inc, GPIO.LOW)    
-        usleep(1000)
+    GPIO.output(out_cs_micro, GPIO.HIGH)
 
 def show_led(q_led):
     # Make sure child process ignore ctrl-c for clean stop
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     led = GPIO.PWM(out_led, 70) # 70 Hz refresh
-    led.start(99)
-    data = 0.0
-
-    pygame.mixer.init()
-    pygame.mixer.music.load("music/03Encore.mp3")
-    pygame.mixer.music.set_volume(1.0)
-    
-    
+    data = None
 
     while True:
-        try:
-            data = q_led.get_nowait()
-        except Empty:  # queue was empty, better chance next time
-            pass
+        data = q_led.get()
         
-        #if data >= 0.0:
-        #    led.start(data)
-
-        if data == 50:
-            pygame.mixer.music.play()
-            GPIO.output(out_audio, GPIO.LOW)
-        elif data == 51:
-            pygame.mixer.music.stop()
-            GPIO.output(out_audio, GPIO.HIGH)
-        elif data == 52:
-            pygame.mixer.music.pause()
-        elif data == 53:
-            pygame.mixer.music.unpause()
-        elif data == 54:
-            pygame.mixer.music.fadeout(5000)
+        if data >= 0.0:
+            led.start(data)
         elif data == -1:
             break
-        elif data == 57:
-            #raise volume
-            raise_volume(25)
-        elif data == 58:
-            #lower volume
-            lower_volume(25)
-        
-        data = None
 
-    pygame.mixer.quit()
+    led.start(0)
     print 'show_led is done.'
+
+def play_music(q_music):
+    # Make sure child process ignore ctrl-c for clean stop
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+     
+    #pygame.init()
+    #pygame.mixer.init()
+
+    data = None
+
+    while True:
+        data = q_music.get()
+
+        if data == 'PLAY':
+            #pygame.mixer.music.load("music/02WhatMoreCanISay.ogg")
+            #pygame.mixer.music.set_volume(0.5)
+            #pygame.mixer.music.play()
+            GPIO.output(out_audio, GPIO.LOW)
+        elif data == 'PAUSE':
+            #pygame.mixer.music.pause()
+            GPIO.output(out_audio, GPIO.HIGH)
+        elif data == 'UNPAUSE':
+            #pygame.mixer.music.unpause()
+            GPIO.output(out_audio, GPIO.LOW)
+        elif data == 'STOP':
+            #pygame.mixer.music.stop()
+            GPIO.output(out_audio, GPIO.HIGH)
+        elif data == 'QUIT':
+            break
+
+    #pygame.mixer.quit()
+    GPIO.output(out_audio, GPIO.HIGH)
+    print 'play_music is done.'
+
 
 def show_nixie(q_display):
     # Make sure child process ignore ctrl-c for clean stop
@@ -195,7 +178,7 @@ def show_nixie(q_display):
 
         if data == None:
             pass
-        elif data == 'STOP':
+        elif data == 'QUIT':
             break
         elif data == 'OFF':
             GPIO.output(out_SRCLR, GPIO.LOW)
@@ -226,138 +209,74 @@ def show_nixie(q_display):
     GPIO.output(out_SRCLR, GPIO.LOW)
     print 'show_nixie is done.'
 
-# Load private info into JSON Object - SHOULD BE IN SAME DIR AS THIS FILE
-with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-        'private_info.json')) as data_file:
-    myprivateinfo = json.load(data_file)
-
-# ******************************************************************************
-def get_credentials():
-    
-    service_account_email = myprivateinfo['service_account_email']
-
-    # Open P12 key file containing private key
-    """Note for the PI : PKCS12 format is not supported by the PyCrypto library. 
-    Need to convert to PEM : 
-    => openssl pkcs12 -in xxxxx.p12 -nodes -nocerts > xxxxx.pem
-    Password => notasecret
-    This is no big deal since the password is knowed from the whole planet! 
-    BUT... keep the file safe, it's YOUR private key! :-)
-    """
-    with open(myprivateinfo['private_key_file']) as f:
-        private_key = f.read()
-
-    # Set credentials for the calendar.readonly API scope
-    # This is a "two-legged OAuth" (2LO) scenario
-    credentials = SignedJwtAssertionCredentials(service_account_email, 
-        private_key, 'https://www.googleapis.com/auth/calendar.readonly')
-    
-    return credentials
-
-def get_next_event():
-
-    credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    service = discovery.build('calendar', 'v3', http=http)
-
-    # My Nixie Clock Calendar ID
-    calendarId = myprivateinfo['calendarId']
-
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    
-    eventsResult = service.events().list(
-        calendarId=calendarId, timeMin=now, maxResults=10, singleEvents=True,
-        orderBy='startTime').execute()
-    
-    # Only interested in the list of events on the calendar
-    events = eventsResult.get('items', [])
-    
-    # Only get "start" info, that's all I need
-    out = []
-    if not events:
-        out.append('nil')
-    for event in events:
-        out.append(event['start'].get('dateTime', event['start'].get('date')))
-    
-    return json.JSONEncoder(indent=4, separators=(',', ': ')).encode(out)
-
-# ******************************************************************************
-app = Flask(__name__)
-app_name = 'yanc' 
-app_version = 'v1.0'
-
-@app.route('/'+app_name+'/api/'+app_version+'/next-alarm')
-def next_alarm():
-    return get_next_event()
-
-@app.route('/'+app_name+'/api/'+app_version+'/led-brightness', 
-    methods=['PUT', 'GET'])
-def led_brightness():
-    if request.method == 'PUT':
-        data = request.json
-        # Persistant data store setup
-        conn = sqlite3.connect(myprivateinfo['database'])
-        c = conn.cursor()
-        c.execute("UPDATE PARAMS SET PVALUE = ? WHERE PNAME='led-brightness'", 
-            (data['value'],)) #Carefull, single element tuple need trailing coma
-        conn.commit()
-        conn.close()
-        q_led.put(data['value'])
-        return 'OK'  
-    else:
-        data = []
-        conn = sqlite3.connect(myprivateinfo['database'])
-        c = conn.cursor()
-        c.execute("SELECT * FROM PARAMS WHERE PNAME='led-brightness'")
-        param_exist = c.fetchone()
-        if param_exist:
-            data.append(param_exist[1])
-        conn.close()
-        
-        js = json.JSONEncoder(indent=4, separators=(',', ': ')).encode(data)
-
-        resp = Response(js, status=200, mimetype='application/json')
-        return resp
-
-def shutdown_server():
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
-
-@app.route('/shutdown', methods=['POST'])
-def shutdown():
-    shutdown_server()
-    return 'Server shutting down...'
-
-def web_server():
-    app.run(port=5000, debug=True, host='0.0.0.0', use_reloader=False)
-    # IMPORTANT : use_reloader not used otherwise it will reload itself
-    #   on startup! Check this: stackoverflow.com/feeds/question/25504149
-    
 def gracefull_quit(signal, frame):
         print '\nKill - main stopped!'
-        q_display.put('STOP')
+        q_display.put('QUIT')
         q_led.put(-1)
-        h = httplib2.Http()
-        h.request("http://172.16.42.3:5000/shutdown", "POST")
-        time.sleep(2)
-        GPIO.cleanup()
+        q_music.put('QUIT')
+        # DON'T CLEANUP!
+        #   It leave the I/O in a high impedance state that put the
+        #   out_audio pin in an unhappy state that put static in the speaker
+        #GPIO.cleanup()
         sys.exit(0)
 
+def sock_server(q_sock):
+    # Make sure the socket does not already exist
+    try:
+        os.unlink(server_address)
+    except OSError:
+        if os.path.exists(server_address):
+            raise
 
-signal.signal(signal.SIGTERM, gracefull_quit)
+    # Create the UDS socket
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    sock.bind(server_address)
+    sock.listen(1)
+
+    # Make sure 'other' can talk to socket
+    mode = os.stat(server_address)
+    os.chmod(server_address, mode.st_mode | stat.S_IWOTH)
+
+    while True:
+        # Wait for a connection
+        print >>sys.stderr, 'waiting for a connection'
+        connection, client_address = sock.accept()
+        try:
+            print >>sys.stderr, 'connection from', client_address
+
+            # Receive the data in small chunks and retransmit it
+            while True:
+                data = connection.recv(16)
+                print >>sys.stderr, 'received "%s"' % data
+                if data:
+                    print >>sys.stderr, 'sending OK to client'
+                    connection.send(data)
+                    # Data is two part : Queue Name and data
+                    q_music.put(data)
+                else:
+                    print >>sys.stderr, 'no more data from', client_address
+                    break
+                
+        finally:
+            # Clean up the connection
+            connection.close()
 
 # ******************************************************************************
 # Main Loop
-if __name__ == '__main__':
-    global q_display, q_led # need global so every process can talk to it
+signal.signal(signal.SIGTERM, gracefull_quit)
 
+if __name__ == '__main__':
+    # need global so any process can talk to it
+    global q_display, q_led, q_music, q_sock  
     q_display = Queue()
-    q_led = Queue() 
+    q_led = Queue()
+    q_sock = Queue() 
+    q_music = Queue()
+
     nixie = Process(target=show_nixie, args=(q_display,)).start()
-    rest = Process(target=web_server).start()
     led = Process(target=show_led, args=(q_led,)).start()
+    music = Process(target=play_music, args=(q_music,)).start()
+    sock = Process(target=sock_server, args=(q_sock,)).start()
 
     print 'main started!'
     try:
@@ -367,7 +286,10 @@ if __name__ == '__main__':
 
     except KeyboardInterrupt:
         print '\nCtrl-C - main stopped!'
-        q_display.put('STOP')
+        q_display.put('QUIT')
         q_led.put(-1)
-        GPIO.cleanup()
- 
+        q_music.put('QUIT')
+        # DON'T CLEANUP!
+        #   It leave the I/O in a high impedance state that put the
+        #   out_audio pin in an unhappy state that put static in the speaker
+        #GPIO.cleanup()
