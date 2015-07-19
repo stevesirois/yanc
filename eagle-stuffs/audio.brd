@@ -1809,7 +1809,7 @@ Please make sure your boards conform to these design rules.</description>
 </element>
 <element name="R8" library="rcl" package="0204V" value="10k" x="33.02" y="13.97"/>
 <element name="R12" library="rcl" package="0204V" value="15k" x="11.43" y="22.86"/>
-<element name="R13" library="rcl" package="0204V" value="5.1k" x="16.51" y="22.86"/>
+<element name="R13" library="rcl" package="0204V" value="4.7k" x="16.51" y="22.86"/>
 <element name="R9" library="rcl" package="0204V" value="1k" x="26.67" y="22.86"/>
 <element name="C1" library="rcl" package="E3,5-10" value="220" x="48.26" y="36.83" smashed="yes">
 <attribute name="NAME" x="45.974" y="33.909" size="1.27" layer="25" ratio="10"/>
