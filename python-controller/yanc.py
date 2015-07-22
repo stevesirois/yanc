@@ -28,40 +28,46 @@ import sys
 import stat
 import socket
 import sqlite3
-#import pygame
 import daemon
 import signal
 import logging 
 import logging.handlers 
-#import lockfile
 from lockfile.pidlockfile import PIDLockFile
+import select
 
 import multiprocessing
 from multiprocessing import Process, Queue
 from Queue import Empty
 
+#import pygame  
+#   Lack good support for MP3 playback so used Music Player Daemon
+
+# **************************************************************************
+# Contants section, know what you do :-)
+#
 # Setup IO (PP = Physical Pin, (l) = Denote an active state on low)
 # Nixie Board
-out_SRCLR = 26  # PP 37 - SCL [SRCLR] (l) pin on 74LS595 - 0 = clear, 1 = enable
-out_led = 12    # PP 32 - Ambient led driver - will be PWM driven
-
+OUT_SRCLR = 26  # PP 37 - SCL [SRCLR] (l) pin on 74LS595 - 0 = clear, 1 = enable
+OUT_LED = 12    # PP 32 - Ambient led driver - will be PWM driven
 # Digital potentiometer
-out_up_down = 22    # PP 15(7) - U/D(l) on DS1804
-out_inc = 5         # PP 29(5) - INC(h) on DS1804
-out_cs_micro = 13    # PP 31(3) - CS(l) on DS1804 for microphone sensitivity
+OUT_UP_DOWN = 22    # PP 15(7) - U/D(l) on DS1804
+OUT_INC = 5         # PP 29(5) - INC(h) on DS1804
+OUT_CS_MICRO = 13   # PP 31(3) - CS(l) on DS1804 for microphone sensitivity
 # Audio enabled
-out_audio = 24      # PP 18(8) - AUDIO ENABLED on SSM2211
+OUT_AUDIO = 24      # PP 18(8) - AUDIO ENABLED on SSM2211
 # Inputs
-in_noise_detect = 17    # PP 11(9) - Output of OpAmp TL084
-in_touch_detect = 25    # PP 22(6) - Atmel AT42QT1011 QTouch Capacitive 
-
+IN_NOISE_DETECT = 17    # PP 11(9) - Output of OpAmp TL084
+IN_TOUCH_DETECT = 25    # PP 22(6) - Atmel AT42QT1011 QTouch Capacitive 
 # Socket server for communication with uWSGI REST Server (yanc-REST)
-server_address = '/tmp/uds_socket'
-
+SERVER_ADDRESS = '/tmp/uds_socket'
+# PID & Log
 PIDFILE = '/var/run/yanc-daemon.pid'
 LOGFILE = '/var/log/yanc-daemon.log'
+WORKING_DIR = '/home/pi/yanc'
 
-logger = logging.getLogger("yanc_log") 
+# **************************************************************************
+# Set logging level here
+logger = logging.getLogger("yanc") 
 logger.setLevel(logging.DEBUG) # DEBUG - INFO - WARNING - ERROR - CRITICAL
 
 ch = logging.FileHandler(LOGFILE)
@@ -84,49 +90,48 @@ def initIO():
     GPIO.setmode(GPIO.BCM)
 
     # OUTPUT
-    GPIO.setup(out_SRCLR, GPIO.OUT, initial=GPIO.LOW) 
-    GPIO.setup(out_led, GPIO.OUT, initial=GPIO.LOW)
-
-    GPIO.setup(out_up_down, GPIO.OUT, initial=GPIO.LOW) 
-    GPIO.setup(out_inc, GPIO.OUT, initial=GPIO.LOW)
+    GPIO.setup(OUT_SRCLR, GPIO.OUT, initial=GPIO.LOW) 
+    GPIO.setup(OUT_LED, GPIO.OUT, initial=GPIO.LOW)
+    GPIO.setup(OUT_UP_DOWN, GPIO.OUT, initial=GPIO.LOW) 
+    GPIO.setup(OUT_INC, GPIO.OUT, initial=GPIO.LOW)
     # De-select microphone
-    GPIO.setup(out_cs_micro, GPIO.OUT, initial=GPIO.HIGH)   
+    GPIO.setup(OUT_CS_MICRO, GPIO.OUT, initial=GPIO.HIGH)   
     # Turn off sound for now
-    GPIO.setup(out_audio, GPIO.OUT, initial=GPIO.HIGH)      
+    GPIO.setup(OUT_AUDIO, GPIO.OUT, initial=GPIO.HIGH)      
 
     # INPUT
-    GPIO.setup(in_noise_detect, GPIO.IN)
-    GPIO.setup(in_touch_detect, GPIO.IN) 
+    GPIO.setup(IN_NOISE_DETECT, GPIO.IN)
+    GPIO.setup(IN_TOUCH_DETECT, GPIO.IN) 
     
-    # Attach callback
-    #GPIO.add_event_detect(in_noise_detect, GPIO.FALLING, callback=my_callback, bouncetime=300)  
-    #GPIO.add_event_detect(in_touch_detect, GPIO.RISING, callback=my_callback2)  
+    # Attach callback... not yet!
+    #GPIO.add_event_detect(IN_NOISE_DETECT, GPIO.FALLING, callback=my_callback, bouncetime=300)  
+    #GPIO.add_event_detect(IN_TOUCH_DETECT, GPIO.RISING, callback=my_callback2, bouncetime=300)  
 
 def adjust_gain(incr, direction):
     usleep = lambda x: time.sleep(x / 1000000.0)
-    GPIO.output(out_cs_micro, GPIO.LOW)
+    GPIO.output(OUT_CS_MICRO, GPIO.LOW)
 
     if direction == 'UP':
-        GPIO.output(out_up_down, GPIO.HIGH)    
+        GPIO.output(OUT_UP_DOWN, GPIO.HIGH)    
     else:
-        GPIO.output(out_up_down, GPIO.LOW)    
+        GPIO.output(OUT_UP_DOWN, GPIO.LOW)    
 
     for x in range(incr):
-        GPIO.output(out_inc, GPIO.HIGH) 
+        GPIO.output(OUT_INC, GPIO.HIGH) 
         usleep(1000)
-        GPIO.output(out_inc, GPIO.LOW)    
+        GPIO.output(OUT_INC, GPIO.LOW)    
         usleep(1000)
 
-    GPIO.output(out_cs_micro, GPIO.HIGH)
+    GPIO.output(OUT_CS_MICRO, GPIO.HIGH)
 
 def show_led(q_led):
 
-    led = GPIO.PWM(out_led, 70) # 70 Hz refresh
+    led = GPIO.PWM(OUT_LED, 70) # 70 Hz refresh
     data = None
 
     while True:
-        data = q_led.get()
-        
+        data = q_led.get() # Blocking is ok here...
+        logger.debug('q_led received : {0}'.format(data))
         if data >= 0.0:
             led.start(data)
         elif data == -1:
@@ -141,29 +146,29 @@ def play_music(q_music):
     data = None
 
     while True:
-        data = q_music.get()
-
+        data = q_music.get() # Blocking is ok
+        logger.debug('q_music received : {0}'.format(data))
+        
         if data == 'PLAY':
             #pygame.mixer.music.load("music/02WhatMoreCanISay.ogg")
             #pygame.mixer.music.set_volume(0.5)
             #pygame.mixer.music.play()
-            GPIO.output(out_audio, GPIO.LOW)
+            GPIO.output(OUT_AUDIO, GPIO.LOW)
         elif data == 'PAUSE':
             #pygame.mixer.music.pause()
-            GPIO.output(out_audio, GPIO.HIGH)
+            GPIO.output(OUT_AUDIO, GPIO.HIGH)
         elif data == 'UNPAUSE':
             #pygame.mixer.music.unpause()
-            GPIO.output(out_audio, GPIO.LOW)
+            GPIO.output(OUT_AUDIO, GPIO.LOW)
         elif data == 'STOP':
             #pygame.mixer.music.stop()
-            GPIO.output(out_audio, GPIO.HIGH)
+            GPIO.output(OUT_AUDIO, GPIO.HIGH)
         elif data == 'QUIT':
             break
 
     #pygame.mixer.quit()
-    GPIO.output(out_audio, GPIO.HIGH)
+    GPIO.output(OUT_AUDIO, GPIO.HIGH)
     logger.info('play_music is done.')
-
 
 def show_nixie(q_display):
     # Use SPI to 'talk' to the shift register (74LS595)
@@ -173,7 +178,7 @@ def show_nixie(q_display):
     # Other detail : SCLK [BCM 11 / PP 23], MOSI [BCM 10 / PP 19]    
     spi.xfer2([0x00])
     spi.xfer2([0x00])
-    GPIO.output(out_SRCLR, GPIO.HIGH)
+    GPIO.output(OUT_SRCLR, GPIO.HIGH)
 
     usleep = lambda x: time.sleep(x / 1000000.0)
 
@@ -197,9 +202,9 @@ def show_nixie(q_display):
         elif data == 'QUIT':
             break
         elif data == 'OFF':
-            GPIO.output(out_SRCLR, GPIO.LOW)
+            GPIO.output(OUT_SRCLR, GPIO.LOW)
         elif data == 'ON':
-            GPIO.output(out_SRCLR, GPIO.HIGH)
+            GPIO.output(OUT_SRCLR, GPIO.HIGH)
         else:
             tube = 8
             for d in data:
@@ -222,51 +227,68 @@ def show_nixie(q_display):
     spi.xfer2([0x00])
     spi.xfer2([0x00])
     spi.close()
-    GPIO.output(out_SRCLR, GPIO.LOW)
+    GPIO.output(OUT_SRCLR, GPIO.LOW)
     logger.info('show_nixie is done.')
 
-def sock_server():
-    # Make sure the socket does not already exist
-    try:
-        os.unlink(server_address)
-    except OSError:
-        if os.path.exists(server_address):
-            raise
-
-    # Create the UDS socket
-    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    sock.bind(server_address)
-    sock.listen(1)
-
-    # Make sure 'other' can talk to socket
-    mode = os.stat(server_address)
-    os.chmod(server_address, mode.st_mode | stat.S_IWOTH)
-
-    while True:
-        # Wait for a connection
-        logger.debug('waiting for a connection')
-
-        connection, client_address = sock.accept()
+class SockServer(object):
+    
+    def __init__(self, port, queue):
+        logger.debug('init SockServer')
+        # Start with a clean slate...
         try:
-            logger.debug('connection from {0}'.format(client_address))
+            os.unlink(port)
+        except OSError:
+            if os.path.exists(port):
+                logger.critical('Problem binding UDS Socket {0}'.format(port))
+                raise
 
-            # Receive the data in small chunks and retransmit it
-            while True:
-                data = connection.recv(16)
-                logger.debug('received {0}'.format(data))
+        # Open and bind server
+        self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.server.bind(port)
+        self.server.listen(1)
+        
+        # Make sure 'other' can talk to socket
+        mode = os.stat(port)
+        os.chmod(port, mode.st_mode | stat.S_IWOTH)
+        
+        self.queue = queue
+        self.outputs = []
 
-                if data:
-                    logger.debug('sending back to client')
-                    connection.send(data)
-                    # Data is two part : Queue Name and data
-                    q_music.put(data)
-                else:
-                    logger.debug('no more data from {0}'.format(client_address))
-                    break
-                
-        finally:
-            # Clean up the connection
-            connection.close()
+    def listen(self):
+        logger.debug('sock listen')
+        qdata = None
+        inputs = [self.server]
+
+        while qdata != 'QUIT':
+            try:
+                qdata = self.queue.get_nowait() # none blocking, IMPORTANT!
+            except Empty:  # queue was empty, better chance next time
+                pass
+
+            try:
+                # Wait for activity, but only for half second...
+                r,w,e = select.select(inputs, self.outputs, [], 0.5)
+            except select.error, e:
+                logger.error('Problem on select.select in sock server!?')
+                break
+
+            for s in r:
+                if s == self.server:
+                    client, address = self.server.accept()
+                    logger.debug('connection from {0}'.format(address))
+                    data = client.recv(16)
+                    logger.debug('...received {0}'.format(data))
+                    client.send(data)
+                    # Add the msg router later...
+                    q_music.put(data) # temp!
+                    # This server is not very chatty!
+                    client.close()
+
+        self.server.close()
+        logger.info('sock is done.')
+
+def lauch_server(q_sock):
+    SockServer(port=SERVER_ADDRESS,queue=q_sock).listen()
 
 def ignore(signal, frame):
     pass
@@ -275,65 +297,45 @@ def cleanup(signal, frame):
     logger.info('main stopped!')
     q_display.put('QUIT')
     q_music.put('QUIT')
+    q_sock.put('QUIT')
     q_led.put(-1)
     sys.exit(0)
     # DON'T CLEANUP GPIO!
     #   It leave the I/O in a high impedance state that put the
-    #   out_audio pin in an unhappy state that in turn put static in the speaker
+    #   OUT_AUDIO pin in an unhappy state that in turn put static in the speaker
     #GPIO.cleanup()
 
 def main():
-    # ******************************************************************************
+    # **************************************************************************
     # Main Loop
 
     # need global so any process can talk to it
-    global q_display, q_led, q_music 
+    global q_display, q_led, q_music, q_sock
     q_display = Queue()
     q_led = Queue()
     q_music = Queue()
+    q_sock = Queue()
 
     initIO()
 
     nixie = Process(target=show_nixie, args=(q_display,)).start()
     led = Process(target=show_led, args=(q_led,)).start()
     music = Process(target=play_music, args=(q_music,)).start()
-    #sock = Process(target=sock_server).start()
-    #sock.daemon = True
-    #sock.start()
+    sock = Process(target=lauch_server, args=(q_sock,)).start()
 
     logger.info('main started!')
  
-    try:
-        while True:
-            q_display.put(time.strftime('%H%M'))
-            time.sleep(15)
+    while True:
+        q_display.put(time.strftime('%H%M'))
+        time.sleep(15)
 
-    except KeyboardInterrupt:
-        print '\nCtrl-C - main stopped!'
-        cleanup()
-
-#from lockfile.pidlockfile import PIDLockFile
-#from lockfile import AlreadyLocked
-#
-#pidfile = PIDLockFile(PIDFILE, timeout=-1)
-#
-#try:
-#    pidfile.acquire()
-#except AlreadyLocked:
-#    try:
-#        os.kill(pidfile.read_pid(), 0)
-#        logger.warn('Yanc is already running man!')
-#        exit(1)
-#    except OSError:  #No process with locked PID
-#        pidfile.break_lock()
-
-
+# Invoke this daemon!
 context = daemon.DaemonContext(
-    working_directory='/home/pi/yanc',
+    working_directory=WORKING_DIR,
     umask=0o002,
-    pidfile=PIDLockFile(PIDFILE, timeout=2), #lockfile.FileLock(PIDFILE),
-    stdout=sys.stdout,
-    stderr=sys.stderr,
+    pidfile=PIDLockFile(PIDFILE, timeout=2),
+    stdout=sys.stdout, # ok for dev phase
+    stderr=sys.stderr, # ok for dev phase
     files_preserve=[ch.stream,]
     )
 
@@ -341,7 +343,7 @@ context.signal_map = {
     signal.SIGTERM: cleanup,
     signal.SIGHUP: 'terminate',
     signal.SIG_IGN: ignore 
-    # This last one must be there otherwise error:
+    # This last one must be there otherwise error on context open:
     #     TypeError: signal handler must be signal.SIG_IGN, ....
     }
 
