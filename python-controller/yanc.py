@@ -27,10 +27,16 @@ import os
 import sys
 import stat
 import socket
-import signal
 import sqlite3
-import pygame
+#import pygame
+import daemon
+import signal
+import logging 
+import logging.handlers 
+#import lockfile
+from lockfile.pidlockfile import PIDLockFile
 
+import multiprocessing
 from multiprocessing import Process, Queue
 from Queue import Empty
 
@@ -52,30 +58,49 @@ in_touch_detect = 25    # PP 22(6) - Atmel AT42QT1011 QTouch Capacitive
 # Socket server for communication with uWSGI REST Server (yanc-REST)
 server_address = '/tmp/uds_socket'
 
-# Setup I/O
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
+PIDFILE = '/var/run/yanc-daemon.pid'
+LOGFILE = '/var/log/yanc-daemon.log'
 
-GPIO.setup(out_SRCLR, GPIO.OUT, initial=GPIO.LOW) 
-GPIO.setup(out_led, GPIO.OUT, initial=GPIO.LOW)
+logger = logging.getLogger("yanc_log") 
+logger.setLevel(logging.DEBUG) # DEBUG - INFO - WARNING - ERROR - CRITICAL
 
-GPIO.setup(out_up_down, GPIO.OUT, initial=GPIO.LOW) 
-GPIO.setup(out_inc, GPIO.OUT, initial=GPIO.LOW) 
-GPIO.setup(out_audio, GPIO.OUT, initial=GPIO.HIGH)      # Turn off sound for now
-GPIO.setup(out_cs_micro, GPIO.OUT, initial=GPIO.HIGH)   # De-select microphone
+ch = logging.FileHandler(LOGFILE)
+ch.setLevel(logging.DEBUG)
 
-GPIO.setup(in_noise_detect, GPIO.IN)
-GPIO.setup(in_touch_detect, GPIO.IN) 
+formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s") 
+ch.setFormatter(formatter) 
+logger.addHandler(ch)
 
 # Define call back for external events (Mic + touch)
 def my_callback(channel):
-    print 'microphone detect'
+    pass
 
 def my_callback2(channel):
-    print 'touch detect'
+    pass
 
-#GPIO.add_event_detect(in_noise_detect, GPIO.FALLING, callback=my_callback, bouncetime=300)  
-#GPIO.add_event_detect(in_touch_detect, GPIO.RISING, callback=my_callback2)  
+def initIO():
+    # Setup I/O
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BCM)
+
+    # OUTPUT
+    GPIO.setup(out_SRCLR, GPIO.OUT, initial=GPIO.LOW) 
+    GPIO.setup(out_led, GPIO.OUT, initial=GPIO.LOW)
+
+    GPIO.setup(out_up_down, GPIO.OUT, initial=GPIO.LOW) 
+    GPIO.setup(out_inc, GPIO.OUT, initial=GPIO.LOW)
+    # De-select microphone
+    GPIO.setup(out_cs_micro, GPIO.OUT, initial=GPIO.HIGH)   
+    # Turn off sound for now
+    GPIO.setup(out_audio, GPIO.OUT, initial=GPIO.HIGH)      
+
+    # INPUT
+    GPIO.setup(in_noise_detect, GPIO.IN)
+    GPIO.setup(in_touch_detect, GPIO.IN) 
+    
+    # Attach callback
+    #GPIO.add_event_detect(in_noise_detect, GPIO.FALLING, callback=my_callback, bouncetime=300)  
+    #GPIO.add_event_detect(in_touch_detect, GPIO.RISING, callback=my_callback2)  
 
 def adjust_gain(incr, direction):
     usleep = lambda x: time.sleep(x / 1000000.0)
@@ -95,8 +120,6 @@ def adjust_gain(incr, direction):
     GPIO.output(out_cs_micro, GPIO.HIGH)
 
 def show_led(q_led):
-    # Make sure child process ignore ctrl-c for clean stop
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     led = GPIO.PWM(out_led, 70) # 70 Hz refresh
     data = None
@@ -110,13 +133,9 @@ def show_led(q_led):
             break
 
     led.start(0)
-    print 'show_led is done.'
+    logger.info('show_led is done.')
 
 def play_music(q_music):
-    # Make sure child process ignore ctrl-c for clean stop
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-     
-    #pygame.init()
     #pygame.mixer.init()
 
     data = None
@@ -143,13 +162,10 @@ def play_music(q_music):
 
     #pygame.mixer.quit()
     GPIO.output(out_audio, GPIO.HIGH)
-    print 'play_music is done.'
+    logger.info('play_music is done.')
 
 
 def show_nixie(q_display):
-    # Make sure child process ignore ctrl-c for clean stop
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-
     # Use SPI to 'talk' to the shift register (74LS595)
     # No bit packing here! :-)
     spi = spidev.SpiDev()
@@ -207,20 +223,9 @@ def show_nixie(q_display):
     spi.xfer2([0x00])
     spi.close()
     GPIO.output(out_SRCLR, GPIO.LOW)
-    print 'show_nixie is done.'
+    logger.info('show_nixie is done.')
 
-def gracefull_quit(signal, frame):
-        print '\nKill - main stopped!'
-        q_display.put('QUIT')
-        q_led.put(-1)
-        q_music.put('QUIT')
-        # DON'T CLEANUP!
-        #   It leave the I/O in a high impedance state that put the
-        #   out_audio pin in an unhappy state that put static in the speaker
-        #GPIO.cleanup()
-        sys.exit(0)
-
-def sock_server(q_sock):
+def sock_server():
     # Make sure the socket does not already exist
     try:
         os.unlink(server_address)
@@ -239,46 +244,65 @@ def sock_server(q_sock):
 
     while True:
         # Wait for a connection
-        print >>sys.stderr, 'waiting for a connection'
+        logger.debug('waiting for a connection')
+
         connection, client_address = sock.accept()
         try:
-            print >>sys.stderr, 'connection from', client_address
+            logger.debug('connection from {0}'.format(client_address))
 
             # Receive the data in small chunks and retransmit it
             while True:
                 data = connection.recv(16)
-                print >>sys.stderr, 'received "%s"' % data
+                logger.debug('received {0}'.format(data))
+
                 if data:
-                    print >>sys.stderr, 'sending OK to client'
+                    logger.debug('sending back to client')
                     connection.send(data)
                     # Data is two part : Queue Name and data
                     q_music.put(data)
                 else:
-                    print >>sys.stderr, 'no more data from', client_address
+                    logger.debug('no more data from {0}'.format(client_address))
                     break
                 
         finally:
             # Clean up the connection
             connection.close()
 
-# ******************************************************************************
-# Main Loop
-signal.signal(signal.SIGTERM, gracefull_quit)
+def ignore(signal, frame):
+    pass
 
-if __name__ == '__main__':
+def cleanup(signal, frame):
+    logger.info('main stopped!')
+    q_display.put('QUIT')
+    q_music.put('QUIT')
+    q_led.put(-1)
+    sys.exit(0)
+    # DON'T CLEANUP GPIO!
+    #   It leave the I/O in a high impedance state that put the
+    #   out_audio pin in an unhappy state that in turn put static in the speaker
+    #GPIO.cleanup()
+
+def main():
+    # ******************************************************************************
+    # Main Loop
+
     # need global so any process can talk to it
-    global q_display, q_led, q_music, q_sock  
+    global q_display, q_led, q_music 
     q_display = Queue()
     q_led = Queue()
-    q_sock = Queue() 
     q_music = Queue()
+
+    initIO()
 
     nixie = Process(target=show_nixie, args=(q_display,)).start()
     led = Process(target=show_led, args=(q_led,)).start()
     music = Process(target=play_music, args=(q_music,)).start()
-    sock = Process(target=sock_server, args=(q_sock,)).start()
+    #sock = Process(target=sock_server).start()
+    #sock.daemon = True
+    #sock.start()
 
-    print 'main started!'
+    logger.info('main started!')
+ 
     try:
         while True:
             q_display.put(time.strftime('%H%M'))
@@ -286,10 +310,40 @@ if __name__ == '__main__':
 
     except KeyboardInterrupt:
         print '\nCtrl-C - main stopped!'
-        q_display.put('QUIT')
-        q_led.put(-1)
-        q_music.put('QUIT')
-        # DON'T CLEANUP!
-        #   It leave the I/O in a high impedance state that put the
-        #   out_audio pin in an unhappy state that put static in the speaker
-        #GPIO.cleanup()
+        cleanup()
+
+#from lockfile.pidlockfile import PIDLockFile
+#from lockfile import AlreadyLocked
+#
+#pidfile = PIDLockFile(PIDFILE, timeout=-1)
+#
+#try:
+#    pidfile.acquire()
+#except AlreadyLocked:
+#    try:
+#        os.kill(pidfile.read_pid(), 0)
+#        logger.warn('Yanc is already running man!')
+#        exit(1)
+#    except OSError:  #No process with locked PID
+#        pidfile.break_lock()
+
+
+context = daemon.DaemonContext(
+    working_directory='/home/pi/yanc',
+    umask=0o002,
+    pidfile=PIDLockFile(PIDFILE, timeout=2), #lockfile.FileLock(PIDFILE),
+    stdout=sys.stdout,
+    stderr=sys.stderr,
+    files_preserve=[ch.stream,]
+    )
+
+context.signal_map = {
+    signal.SIGTERM: cleanup,
+    signal.SIGHUP: 'terminate',
+    signal.SIG_IGN: ignore 
+    # This last one must be there otherwise error:
+    #     TypeError: signal handler must be signal.SIG_IGN, ....
+    }
+
+with context:
+    main()
