@@ -127,15 +127,13 @@ def adjust_gain(incr, direction):
 def show_led(q_led):
 
     led = GPIO.PWM(OUT_LED, 70) # 70 Hz refresh
-    data = None
+    qdata = None
 
-    while True:
-        data = q_led.get() # Blocking is ok here...
-        logger.debug('q_led received : {0}'.format(data))
-        if data >= 0.0:
-            led.start(data)
-        elif data == -1:
-            break
+    while qdata != -1:
+        qdata = q_led.get() # Blocking is ok here...
+        logger.debug('q_led received : {0}'.format(qdata))
+        if qdata >= 0.0:
+            led.start(qdata)
 
     led.start(0)
     logger.info('show_led is done.')
@@ -145,7 +143,7 @@ def play_music(q_music):
 
     data = None
 
-    while True:
+    while data != 'QUIT':
         data = q_music.get() # Blocking is ok
         logger.debug('q_music received : {0}'.format(data))
         
@@ -163,8 +161,6 @@ def play_music(q_music):
         elif data == 'STOP':
             #pygame.mixer.music.stop()
             GPIO.output(OUT_AUDIO, GPIO.HIGH)
-        elif data == 'QUIT':
-            break
 
     #pygame.mixer.quit()
     GPIO.output(OUT_AUDIO, GPIO.HIGH)
@@ -187,27 +183,27 @@ def show_nixie(q_display):
     blanking = 300 # (us) - prevent ghosting effect
     turnon = 100 # (us) Turn-on time, typical between 10-100
 
-    data = None
+    qdata = None
 
     while True:
         try:
-            data = q_display.get_nowait()
+            qdata = q_display.get_nowait()
             # Must not block! :-) check link below for more info
             # stackoverflow.com/feeds/question/31235112
         except Empty:  # queue was empty, better chance next time
             pass
 
-        if data == None:
+        if qdata == None:
             pass
-        elif data == 'QUIT':
+        elif qdata == 'QUIT':
             break
-        elif data == 'OFF':
+        elif qdata == 'OFF':
             GPIO.output(OUT_SRCLR, GPIO.LOW)
-        elif data == 'ON':
+        elif qdata == 'ON':
             GPIO.output(OUT_SRCLR, GPIO.HIGH)
         else:
             tube = 8
-            for d in data:
+            for d in qdata:
                 if tube == 8 and d == "0":  # don't turn on first digit
                     off_hex = "00"
                     on_hex = "00"
