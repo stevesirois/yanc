@@ -70,19 +70,65 @@ WORKING_DIR = '/home/pi/yanc'
 logger = logging.getLogger("yanc") 
 logger.setLevel(logging.DEBUG) # DEBUG - INFO - WARNING - ERROR - CRITICAL
 
-ch = logging.FileHandler(LOGFILE)
-ch.setLevel(logging.DEBUG)
+fh = logging.FileHandler(LOGFILE)
+fh.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s") 
-ch.setFormatter(formatter) 
-logger.addHandler(ch)
+fh.setFormatter(formatter) 
+logger.addHandler(fh)
 
-# Define call back for external events (Mic + touch)
-def my_callback(channel):
+def callback_noise():
     pass
+    #logger.debug('somebody yell at me!!!')
 
-def my_callback2(channel):
-    pass
+def callback_touch():
+    logger.debug('somebody touche me!!!')
+
+def sensor_detect(q_sensor):
+    qdata = None
+    state_t = GPIO.input(IN_TOUCH_DETECT)
+    state_n = GPIO.input(IN_NOISE_DETECT)
+
+    while True:
+        try:
+            qdata = q_sensor.get_nowait()
+            # Must not block! :-) check link below for more info
+            # stackoverflow.com/feeds/question/31235112
+        except Empty:  # queue was empty, better chance next time
+            pass
+
+        if qdata == None:
+            pass
+        elif qdata == 'QUIT':
+            break
+        
+        state_now = GPIO.input(IN_TOUCH_DETECT)
+
+        if state_now and state_t:
+            pass    #no change
+        elif state_now == True and state_t == False:
+            # detect only rising transition
+            state_t = state_now
+            callback_touch()
+        else:
+            state_t = state_now
+
+        state_now = GPIO.input(IN_NOISE_DETECT)
+
+        if state_now and state_n:
+            pass    #no change
+        elif state_now == True and state_n == False:
+            # detect only rising transition
+            state_n = state_now
+            callback_noise()
+        else:
+            state_n = state_now
+
+        # Ok, don't get to crazy about reading those sensors!!!
+        time.sleep(0.05)
+
+    logger.info('sensors is done.')
+
 
 def initIO():
     # Setup I/O
@@ -99,13 +145,17 @@ def initIO():
     # Turn off sound for now
     GPIO.setup(OUT_AUDIO, GPIO.OUT, initial=GPIO.HIGH)      
 
-    # INPUT
+    # INPUT (no pullup or pulldown resistor required here)
     GPIO.setup(IN_NOISE_DETECT, GPIO.IN)
     GPIO.setup(IN_TOUCH_DETECT, GPIO.IN) 
     
-    # Attach callback... not yet!
-    #GPIO.add_event_detect(IN_NOISE_DETECT, GPIO.FALLING, callback=my_callback, bouncetime=300)  
-    #GPIO.add_event_detect(IN_TOUCH_DETECT, GPIO.RISING, callback=my_callback2, bouncetime=300)  
+    # Attach callback... NOT!!!
+    #   As version 0.5.11 of RPi.GPIO lib, those threaded callback work fine in
+    #   a single process app. But when I run this in my multiprocess app,
+    #   GPIO detect multiple rising edge event instead of one?!?
+    #   So, add to implement my own loop to check pin input status.
+    #GPIO.add_event_detect(IN_NOISE_DETECT, GPIO.FALLING, callback=callbackX)  
+    #GPIO.add_event_detect(IN_TOUCH_DETECT, GPIO.RISING, callback=callbackY)  
 
 def adjust_gain(incr, direction):
     usleep = lambda x: time.sleep(x / 1000000.0)
@@ -294,6 +344,7 @@ def cleanup(signal, frame):
     q_display.put('QUIT')
     q_music.put('QUIT')
     q_sock.put('QUIT')
+    q_sensor.put('QUIT')
     q_led.put(-1)
     sys.exit(0)
     # DON'T CLEANUP GPIO!
@@ -306,22 +357,47 @@ def main():
     # Main Loop
 
     # need global so any process can talk to it
-    global q_display, q_led, q_music, q_sock
+    global q_display, q_led, q_music, q_sock, q_sensor
     q_display = Queue()
     q_led = Queue()
     q_music = Queue()
     q_sock = Queue()
+    q_sensor = Queue()
 
     initIO()
 
-    nixie = Process(target=show_nixie, args=(q_display,)).start()
-    led = Process(target=show_led, args=(q_led,)).start()
-    music = Process(target=play_music, args=(q_music,)).start()
-    sock = Process(target=lauch_server, args=(q_sock,)).start()
+    Process(target=show_nixie, args=(q_display,)).start()
+    Process(target=show_led, args=(q_led,)).start()
+    Process(target=play_music, args=(q_music,)).start()
+    Process(target=lauch_server, args=(q_sock,)).start()
+    Process(target=sensor_detect, args=(q_sensor,)).start()
 
     logger.info('main started!')
- 
+    
+    global alarm 
+    global snooze 
+    global sleep
+
     while True:
+        # Master loop that manage event around here
+        #
+        # Clock can be in 3 'basic' state:
+        #   ************************************************************
+        #   * State         | Nixie status | Led status | Sound status *
+        #   ************************************************************
+        #   * sleeping      |     off      |     off    |      off     *
+        #   * alarm         |     on       |     on     |      on      *
+        #   * snooze        |     off      |     on     |      pause   *
+        #   ************************************************************
+        #
+        #   There's also 2 externals events that can interac with those state 
+        #   which is microphone (noise) and touch (capacitive sensor).
+        #   
+        #   Also, in specific period (ex. 22h00 to 6h00), those external event 
+        #   will have different result. For example, a microphone event in this
+        #   period will not turn-on nixie but a touch event always will.
+
+        # Update display with time
         q_display.put(time.strftime('%H%M'))
         time.sleep(15)
 
@@ -330,9 +406,9 @@ context = daemon.DaemonContext(
     working_directory=WORKING_DIR,
     umask=0o002,
     pidfile=PIDLockFile(PIDFILE, timeout=2),
-    stdout=sys.stdout, # ok for dev phase
-    stderr=sys.stderr, # ok for dev phase
-    files_preserve=[ch.stream,]
+    stdout=sys.stdout, # ok for dev phase, otherwise null
+    stderr=sys.stderr, # ok for dev phase, otherwise null
+    files_preserve=[fh.stream,]
     )
 
 context.signal_map = {
