@@ -34,10 +34,17 @@ import logging
 import logging.handlers 
 from lockfile.pidlockfile import PIDLockFile
 import select
-
+import requests
+import json
+import sqlite3 as sqlite
+import dateutil.parser
+from dateutil.tz import tzlocal
+import datetime
+from enum import Enum
 import multiprocessing
 from multiprocessing import Process, Queue
 from Queue import Empty
+from subprocess import call
 
 #import pygame  
 #   Lack good support for MP3 playback so used Music Player Daemon
@@ -64,6 +71,15 @@ SERVER_ADDRESS = '/tmp/uds_socket'
 PIDFILE = '/var/run/yanc-daemon.pid'
 LOGFILE = '/var/log/yanc-daemon.log'
 WORKING_DIR = '/home/pi/yanc'
+# Timing
+REFRESH_RATE = 70       # Hz
+
+CYCLE_MAIN_WAIT = 15    # Sec.
+CYCLE_MUSIC_WAIT = 0.5  # Sec.
+
+REFRESH_ALARMS = 3600   # Sec.
+CHECK_ALARM = 60        # Sec.
+SNOOZE_DELAY = 300      # Sec.
 
 # **************************************************************************
 # Set logging level here
@@ -77,12 +93,25 @@ formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 fh.setFormatter(formatter) 
 logger.addHandler(fh)
 
+# **************************************************************************
+# Load private info into JSON Object - SHOULD BE IN SAME DIR AS THIS FILE
+with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+        'private_info.json')) as data_file:
+    myprivateinfo = json.load(data_file)
+
+# **************************************************************************
+# Enum
+Message = Enum('Message', 'alarm quit play unpause stop touch sound hold')
+State = Enum('State', 'sleeping alarm snooze')
+
 def callback_noise():
-    pass
     #logger.debug('somebody yell at me!!!')
+    pass
 
 def callback_touch():
-    logger.debug('somebody touche me!!!')
+    logger.debug('somebody touch me!!!')
+    q_music.put(Message.touch)
+    pass
 
 def sensor_detect(q_sensor):
     qdata = None
@@ -92,14 +121,10 @@ def sensor_detect(q_sensor):
     while True:
         try:
             qdata = q_sensor.get_nowait()
-            # Must not block! :-) check link below for more info
-            # stackoverflow.com/feeds/question/31235112
         except Empty:  # queue was empty, better chance next time
             pass
 
-        if qdata == None:
-            pass
-        elif qdata == 'QUIT':
+        if qdata == Message.quit:
             break
         
         state_now = GPIO.input(IN_TOUCH_DETECT)
@@ -129,7 +154,6 @@ def sensor_detect(q_sensor):
 
     logger.info('sensors is done.')
 
-
 def initIO():
     # Setup I/O
     GPIO.setwarnings(False)
@@ -153,7 +177,7 @@ def initIO():
     #   As version 0.5.11 of RPi.GPIO lib, those threaded callback work fine in
     #   a single process app. But when I run this in my multiprocess app,
     #   GPIO detect multiple rising edge event instead of one?!?
-    #   So, add to implement my own loop to check pin input status.
+    #   So, had to implement my own loop to check pin input status.
     #GPIO.add_event_detect(IN_NOISE_DETECT, GPIO.FALLING, callback=callbackX)  
     #GPIO.add_event_detect(IN_TOUCH_DETECT, GPIO.RISING, callback=callbackY)  
 
@@ -179,40 +203,81 @@ def show_led(q_led):
     led = GPIO.PWM(OUT_LED, 70) # 70 Hz refresh
     qdata = None
 
-    while qdata != -1:
-        qdata = q_led.get() # Blocking is ok here...
-        logger.debug('q_led received : {0}'.format(qdata))
+    while True:
+        try:
+            qdata = q_led.get_nowait()
+        except Empty:  # queue was empty, better chance next time
+            pass
+        else:
+            logger.debug('q_led received : {0}'.format(qdata))
+
+        if qdata == Message.quit:
+            break
+
         if qdata >= 0.0:
             led.start(qdata)
+
+        qdata = None
 
     led.start(0)
     logger.info('show_led is done.')
 
 def play_music(q_music):
-    #pygame.mixer.init()
+    state = State.sleeping
+    volume = 0
+    flag_snooze = SNOOZE_DELAY / CYCLE_MUSIC_WAIT
 
-    data = None
+    qdata = None
 
-    while data != 'QUIT':
-        data = q_music.get() # Blocking is ok
-        logger.debug('q_music received : {0}'.format(data))
+    while True:
+        try:
+            qdata = q_music.get_nowait()
+        except Empty:  # queue was empty, better chance next time
+            pass
+        else:
+            logger.debug('q_music received : {0}'.format(qdata))
+
+        if qdata == Message.quit:
+            break
         
-        if data == 'PLAY':
-            #pygame.mixer.music.load("music/02WhatMoreCanISay.ogg")
-            #pygame.mixer.music.set_volume(0.5)
-            #pygame.mixer.music.play()
+        if qdata == Message.alarm:
+            # Change states
+            state = State.alarm
+            call (['mpc','volume','{0}'.format(volume)])
+            call (['mpc','play'])
             GPIO.output(OUT_AUDIO, GPIO.LOW)
-        elif data == 'PAUSE':
-            #pygame.mixer.music.pause()
-            GPIO.output(OUT_AUDIO, GPIO.HIGH)
-        elif data == 'UNPAUSE':
-            #pygame.mixer.music.unpause()
-            GPIO.output(OUT_AUDIO, GPIO.LOW)
-        elif data == 'STOP':
-            #pygame.mixer.music.stop()
-            GPIO.output(OUT_AUDIO, GPIO.HIGH)
 
-    #pygame.mixer.quit()
+        if qdata == Message.touch:
+            # If we are in alarm, it mean snooze...
+            if state == State.alarm:
+                state = State.snooze
+                call (['mpc','pause'])
+                GPIO.output(OUT_AUDIO, GPIO.HIGH)
+                volume = 0
+                flag_snooze = SNOOZE_DELAY / CYCLE_MUSIC_WAIT
+
+        if qdata == Message.unpause:
+            state = State.alarm
+            call (['mpc','volume','{0}'.format(volume)])
+            call (['mpc','toggle'])
+            GPIO.output(OUT_AUDIO, GPIO.LOW)    
+            flag_snooze = SNOOZE_DELAY / CYCLE_MUSIC_WAIT
+
+        qdata = None
+
+        if state == State.alarm:
+            volume += 2
+            # Check maximum volume later
+            if volume < 100:
+                call (['mpc','volume','{0}'.format(volume)])
+
+        if state == State.snooze:
+            flag_snooze = timed_func(flag_snooze,SNOOZE_DELAY,
+            CYCLE_MUSIC_WAIT,lambda : q_music.put(Message.unpause))
+
+        # Take a brake...
+        time.sleep(CYCLE_MUSIC_WAIT)
+
     GPIO.output(OUT_AUDIO, GPIO.HIGH)
     logger.info('play_music is done.')
 
@@ -228,10 +293,10 @@ def show_nixie(q_display):
 
     usleep = lambda x: time.sleep(x / 1000000.0)
 
-    rate = 70 # (Hz) must be > 60 to get to "flicker fusion threshold" :-)
+    rate = REFRESH_RATE # (Hz) must be > 60 to get to "flicker fusion threshold"
     cycle = 1000000.0 / rate / 4 # (us) one full cycle per nixie (4)
     blanking = 300 # (us) - prevent ghosting effect
-    turnon = 100 # (us) Turn-on time, typical between 10-100
+    turnon = 100 # (us) Turn-on time, typical between 10-100 us
 
     qdata = None
 
@@ -245,12 +310,12 @@ def show_nixie(q_display):
 
         if qdata == None:
             pass
-        elif qdata == 'QUIT':
+        elif qdata == Message.quit:
             break
-        elif qdata == 'OFF':
-            GPIO.output(OUT_SRCLR, GPIO.LOW)
-        elif qdata == 'ON':
-            GPIO.output(OUT_SRCLR, GPIO.HIGH)
+        # elif qdata == 'OFF':
+        #     GPIO.output(OUT_SRCLR, GPIO.LOW)
+        # elif qdata == 'ON':
+        #     GPIO.output(OUT_SRCLR, GPIO.HIGH)
         else:
             tube = 8
             for d in qdata:
@@ -305,7 +370,7 @@ class SockServer(object):
         qdata = None
         inputs = [self.server]
 
-        while qdata != 'QUIT':
+        while qdata != Message.quit:
             try:
                 qdata = self.queue.get_nowait() # none blocking, IMPORTANT!
             except Empty:  # queue was empty, better chance next time
@@ -341,16 +406,91 @@ def ignore(signal, frame):
 
 def cleanup(signal, frame):
     logger.info('main stopped!')
-    q_display.put('QUIT')
-    q_music.put('QUIT')
-    q_sock.put('QUIT')
-    q_sensor.put('QUIT')
-    q_led.put(-1)
+    q_display.put(Message.quit)
+    q_music.put(Message.quit)
+    q_sock.put(Message.quit)
+    q_sensor.put(Message.quit)
+    q_led.put(Message.quit)
     sys.exit(0)
     # DON'T CLEANUP GPIO!
     #   It leave the I/O in a high impedance state that put the
     #   OUT_AUDIO pin in an unhappy state that in turn put static in the speaker
     #GPIO.cleanup()
+
+def refresh_alarms():
+    # Don't reinvent the wheel, call the REST server 
+    logger.info('refresh thoses alarms...')
+    
+    try:
+        url = 'http://raspberrypi:5000/yanc/api/v1.0/next-alarm'
+        r = requests.get(url)
+    except Exception, e:
+        logger.error('Problem with request %s : %s', url, e.args[0])
+        raise
+    
+    alarms = json.loads(r.text)
+    if alarms[0] == 'nil':
+        logger.error('no alarms time found in google calendar!')
+    else:
+        conn = None
+
+        try:
+            # First empty the table
+            conn = sqlite.connect(myprivateinfo['database'])
+            c = conn.cursor()
+            c.execute('DELETE FROM alarms')
+            conn.commit()
+            
+            c.executemany('INSERT INTO alarms (alarm) VALUES (?)', 
+                ((s,) for s in alarms))
+            conn.commit()
+
+            conn.close()
+        except sqlite.Error, e:
+            logger.error('Problem with request INSERT INTO alarms : %s', e.args[0])
+
+        finally:
+            if conn:
+                conn.close()   
+
+def check_alarm():
+    logger.info('check_alarm: time to chime?')
+    conn = None
+
+    now = datetime.datetime.now(tzlocal())
+    delta = datetime.timedelta(minutes=1)
+
+    try:
+        conn = sqlite.connect(myprivateinfo['database'])
+        c = conn.cursor()
+        c.execute("SELECT * FROM alarms")
+        for alarm in c.fetchall():
+            logger.debug('alarms data %s', alarm[0])   
+            eventDate = dateutil.parser.parse(alarm[0])
+            # Date are formatted as ISO8601
+            if now >= eventDate:
+                # Ok, now if it's too late, forget about it!
+                if now - delta < eventDate:
+                    logger.info('DRING DRING DRING')
+                    q_music.put(Message.alarm)
+
+        conn.close()
+    except sqlite.Error, e:
+        logger.error('Problem with request SELECT * FROM ALARMS : %s', url, e.args[0])
+
+    finally:
+        if conn:
+            conn.close()   
+
+def timed_func(flag,cycle,wait,func):
+    
+    flag -= 1
+
+    if flag == 0:
+        flag = cycle / wait
+        func()
+
+    return flag
 
 def main():
     # **************************************************************************
@@ -366,6 +506,7 @@ def main():
 
     initIO()
 
+    # Ok childrens, time to work!
     Process(target=show_nixie, args=(q_display,)).start()
     Process(target=show_led, args=(q_led,)).start()
     Process(target=play_music, args=(q_music,)).start()
@@ -373,10 +514,11 @@ def main():
     Process(target=sensor_detect, args=(q_sensor,)).start()
 
     logger.info('main started!')
-    
-    global alarm 
-    global snooze 
-    global sleep
+     
+    flag_getalarms = REFRESH_ALARMS / CYCLE_MAIN_WAIT
+    flag_checkalarms = CHECK_ALARM / CYCLE_MAIN_WAIT
+
+    refresh_alarms()
 
     while True:
         # Master loop that manage event around here
@@ -396,10 +538,21 @@ def main():
         #   Also, in specific period (ex. 22h00 to 6h00), those external event 
         #   will have different result. For example, a microphone event in this
         #   period will not turn-on nixie but a touch event always will.
+        #
+        
+        # Get a list of the next 10 alarms every hour
+        flag_getalarms = timed_func(flag_getalarms,REFRESH_ALARMS,
+            CYCLE_MAIN_WAIT,refresh_alarms)
+
+        # Time to chime the bell?
+        flag_checkalarms = timed_func(flag_checkalarms,CHECK_ALARM,
+            CYCLE_MAIN_WAIT,check_alarm)
 
         # Update display with time
         q_display.put(time.strftime('%H%M'))
-        time.sleep(15)
+        
+        # Finally...get some rest :-)
+        time.sleep(CYCLE_MAIN_WAIT)
 
 # Invoke this daemon!
 context = daemon.DaemonContext(
