@@ -80,6 +80,7 @@ CYCLE_MUSIC_WAIT = 0.5  # Sec.
 REFRESH_ALARMS = 3600   # Sec.
 CHECK_ALARM = 60        # Sec.
 SNOOZE_DELAY = 300      # Sec.
+TURN_OFF_NIXIE = 10     # Sec.
 
 # **************************************************************************
 # Set logging level here
@@ -101,8 +102,10 @@ with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),
 
 # **************************************************************************
 # Enum
-Message = Enum('Message', 'alarm quit play unpause stop touch sound hold')
-State = Enum('State', 'sleeping alarm snooze')
+Message = Enum('Message', 
+    'alarm quit play unpause stop touch sound hold time off')
+State = Enum('State', 
+    'sleeping alarm snooze')
 
 def callback_noise():
     #logger.debug('somebody yell at me!!!')
@@ -111,7 +114,7 @@ def callback_noise():
 def callback_touch():
     logger.debug('somebody touch me!!!')
     q_music.put(Message.touch)
-    pass
+    q_display.put(Message.touch)
 
 def sensor_detect(q_sensor):
     qdata = None
@@ -282,6 +285,10 @@ def play_music(q_music):
     logger.info('play_music is done.')
 
 def show_nixie(q_display):
+    state = State.sleeping
+
+    cnt_turnoff = TURN_OFF_NIXIE / ( 1.0 / REFRESH_RATE )
+
     # Use SPI to 'talk' to the shift register (74LS595)
     # No bit packing here! :-)
     spi = spidev.SpiDev()
@@ -307,18 +314,25 @@ def show_nixie(q_display):
             # stackoverflow.com/feeds/question/31235112
         except Empty:  # queue was empty, better chance next time
             pass
-
-        if qdata == None:
-            pass
-        elif qdata == Message.quit:
-            break
-        # elif qdata == 'OFF':
-        #     GPIO.output(OUT_SRCLR, GPIO.LOW)
-        # elif qdata == 'ON':
-        #     GPIO.output(OUT_SRCLR, GPIO.HIGH)
         else:
+            logger.debug('q_display received : {0}'.format(qdata))
+
+        if qdata == Message.quit:
+            break
+        elif qdata == Message.off:
+            spi.xfer2([0x00])
+            spi.xfer2([0x00])
+            GPIO.output(OUT_SRCLR, GPIO.LOW)
+            qdata = None
+        elif qdata == Message.touch:
+            GPIO.output(OUT_SRCLR, GPIO.HIGH)
+            cnt_turnoff = TURN_OFF_NIXIE / ( 1.0 / REFRESH_RATE )
+            q_display.put(Message.time)
+        elif qdata == Message.time:
+            cnt_turnoff = timed_func(cnt_turnoff,TURN_OFF_NIXIE, 
+                1.0 / REFRESH_RATE,lambda : q_display.put(Message.off))        
             tube = 8
-            for d in qdata:
+            for d in time.strftime('%H%M'):
                 if tube == 8 and d == "0":  # don't turn on first digit
                     off_hex = "00"
                     on_hex = "00"
@@ -473,6 +487,7 @@ def check_alarm():
                 if now - delta < eventDate:
                     logger.info('DRING DRING DRING')
                     q_music.put(Message.alarm)
+                    q_display.put(Message.alarm)
 
         conn.close()
     except sqlite.Error, e:
@@ -482,15 +497,17 @@ def check_alarm():
         if conn:
             conn.close()   
 
-def timed_func(flag,cycle,wait,func):
-    
-    flag -= 1
+def timed_func(counter,cycle,wait,func):
+    # Used but function inside While True loop to get call (func) after
+    #   a certain delay that depend of the (wait) time inside the loop and
+    #   the (cycle) time before getting call 
+    counter -= 1
 
-    if flag == 0:
-        flag = cycle / wait
-        func()
+    if counter == 0:
+        counter = cycle / wait # Reset counter
+        func() # Call the function pass in parameter
 
-    return flag
+    return counter
 
 def main():
     # **************************************************************************
@@ -515,10 +532,16 @@ def main():
 
     logger.info('main started!')
      
-    flag_getalarms = REFRESH_ALARMS / CYCLE_MAIN_WAIT
-    flag_checkalarms = CHECK_ALARM / CYCLE_MAIN_WAIT
+    cnt_getalarms = REFRESH_ALARMS / CYCLE_MAIN_WAIT
+    cnt_checkalarms = CHECK_ALARM / CYCLE_MAIN_WAIT
 
     refresh_alarms()
+
+    # Wait just a little bit so every child are in place
+    time.sleep(5)
+
+    # Start display with current time
+    q_display.put(Message.time)
 
     while True:
         # Master loop that manage event around here
@@ -541,16 +564,13 @@ def main():
         #
         
         # Get a list of the next 10 alarms every hour
-        flag_getalarms = timed_func(flag_getalarms,REFRESH_ALARMS,
+        cnt_getalarms = timed_func(cnt_getalarms,REFRESH_ALARMS,
             CYCLE_MAIN_WAIT,refresh_alarms)
 
         # Time to chime the bell?
-        flag_checkalarms = timed_func(flag_checkalarms,CHECK_ALARM,
+        cnt_checkalarms = timed_func(cnt_checkalarms,CHECK_ALARM,
             CYCLE_MAIN_WAIT,check_alarm)
 
-        # Update display with time
-        q_display.put(time.strftime('%H%M'))
-        
         # Finally...get some rest :-)
         time.sleep(CYCLE_MAIN_WAIT)
 
